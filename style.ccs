@@ -1,0 +1,78 @@
+:root {
+    --walkman-blue: #1e3a5f;
+    --metal-silver: #a1a1a1;
+    --button-gradient: linear-gradient(180deg, #666, #333);
+}
+
+.walkman-body {
+    width: 320px;
+    height: 480px;
+    background: var(--walkman-blue);
+    border-radius: 20px;
+    border: 4px solid #111;
+    position: relative;
+    box-shadow: 15px 15px 0px rgba(0,0,0,0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+}
+
+.brand {
+    color: var(--metal-silver);
+    font-family: 'Helvetica', sans-serif;
+    font-weight: 900;
+    letter-spacing: 5px;
+    margin-bottom: 5px;
+}
+
+.cassette-door {
+    width: 260px;
+    height: 180px;
+    background: rgba(255,255,255,0.05);
+    border: 2px solid rgba(255,255,255,0.2);
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: inset 0 0 10px #000;
+}
+
+/* The physical push-button look */
+.physical-btn {
+    width: 60px;
+    height: 40px;
+    background: var(--button-gradient);
+    border: 1px solid #000;
+    border-radius: 4px;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #111; /* The "height" of the button */
+    transition: all 0.1s;
+    margin: 10px;
+}
+
+.physical-btn:active {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 #111;
+}
+
+.icon {
+    color: #eee;
+    font-size: 1.2rem;
+}
+
+/* Red Light Indicator */
+.led {
+    width: 8px;
+    height: 8px;
+    background: #400;
+    border-radius: 50%;
+    position: absolute;
+    top: 40px;
+    right: 40px;
+}
+
+.led.active {
+    background: #ff0000;
+    box-shadow: 0 0 8px #ff0000;
+}
