@@ -1,28 +1,167 @@
-<div class="walkman-body">
-    <div class="brand">SONY</div>
-    <div class="model">WALKMAN</div>
-    
-    <div class="cassette-door">
-        <div class="window-tint">
-            <div class="tape-ribbon-container">
-                <div class="spool-housing">
-                    <div id="tape-left" class="tape-mass"></div>
-                    <div class="spool left playing" id="spool-l"></div>
-                </div>
-                <div class="spool-housing">
-                    <div id="tape-right" class="tape-mass"></div>
-                    <div class="spool right playing" id="spool-r"></div>
-                </div>
-            </div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>80s Retro Walkman Player</title>
+    <style>
+        :root {
+            --bg-color: #d2b48c; /* Wood table color */
+        }
+
+        body {
+            background-color: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: sans-serif;
+        }
+
+        /* Container that holds the Walkman Image */
+        .walkman-container {
+            position: relative;
+            width: 500px; /* Adjust based on image scale */
+            height: 500px;
+            user-select: none;
+        }
+
+        .walkman-img {
+            width: 100%;
+            height: auto;
+            display: block;
+            box-shadow: 20px 20px 40px rgba(0,0,0,0.4);
+        }
+
+        /* Positioning the spools over the cassette window in the image */
+        .spool-container {
+            position: absolute;
+            top: 145px; /* Adjust these values to line up with the holes */
+            left: 78px;
+            width: 195px;
+            display: flex;
+            justify-content: space-between;
+            pointer-events: none;
+        }
+
+        .spool {
+            width: 48px;
+            height: 48px;
+            /* If you don't have a spool image yet, this CSS creates a gear */
+            background: repeating-conic-gradient(#333 0% 10%, #111 10% 20%);
+            border-radius: 50%;
+            border: 2px solid #000;
+        }
+
+        /* Animation class triggered by JS */
+        .spinning {
+            animation: rotateSpool 2s infinite linear;
+        }
+
+        @keyframes rotateSpool {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Invisible Hotspots over the image buttons */
+        .btn-hotspot {
+            position: absolute;
+            background: rgba(255, 0, 0, 0); /* Change to 0.2 to see them for debugging */
+            cursor: pointer;
+            border: none;
+        }
+
+        #play-trigger {
+            bottom: 115px;
+            left: 30px;
+            width: 95px;
+            height: 45px;
+        }
+
+        #stop-trigger {
+            bottom: 115px;
+            left: 135px;
+            width: 45px;
+            height: 45px;
+        }
+
+        /* Red LED Light */
+        #power-led {
+            position: absolute;
+            top: 288px;
+            left: 62px;
+            width: 10px;
+            height: 10px;
+            background: #400;
+            border-radius: 50%;
+            transition: 0.3s;
+        }
+
+        #power-led.active {
+            background: #ff0000;
+            box-shadow: 0 0 10px #ff0000;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="walkman-container">
+        <img src="walkman.png" alt="Walkman Body" class="walkman-img">
+
+        <div id="power-led"></div>
+
+        <div class="spool-container">
+            <div id="left-spool" class="spool"></div>
+            <div id="right-spool" class="spool"></div>
         </div>
+
+        <button id="play-trigger" class="btn-hotspot" title="Play"></button>
+        <button id="stop-trigger" class="btn-hotspot" title="Stop"></button>
+
+        <audio id="main-track" src="music.mp3"></audio>
+        <audio id="click-sound" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3"></audio>
     </div>
 
-    <div class="button-rack">
-        <button id="play-btn" class="physical-btn">
-            <div class="icon">▶</div>
-        </button>
-        <button class="physical-btn stop">
-            <div class="icon">■</div>
-        </button>
-    </div>
-</div>
+    <script>
+        const audio = document.getElementById('main-track');
+        const click = document.getElementById('click-sound');
+        const playBtn = document.getElementById('play-trigger');
+        const stopBtn = document.getElementById('stop-trigger');
+        const spools = document.querySelectorAll('.spool');
+        const led = document.getElementById('power-led');
+
+        function playMechanicalClick() {
+            click.currentTime = 0;
+            click.play();
+        }
+
+        playBtn.addEventListener('click', () => {
+            playMechanicalClick();
+            if (audio.paused) {
+                audio.play();
+                led.classList.add('active');
+                spools.forEach(s => s.classList.add('spinning'));
+            } else {
+                audio.pause();
+                led.classList.remove('active');
+                spools.forEach(s => s.classList.remove('spinning'));
+            }
+        });
+
+        stopBtn.addEventListener('click', () => {
+            playMechanicalClick();
+            audio.pause();
+            audio.currentTime = 0;
+            led.classList.remove('active');
+            spools.forEach(s => s.classList.remove('spinning'));
+        });
+
+        // Handle audio ending naturally
+        audio.onended = () => {
+            led.classList.remove('active');
+            spools.forEach(s => s.classList.remove('spinning'));
+        };
+    </script>
+</body>
+</html>
