@@ -9,7 +9,7 @@
             --wm-metallic: #2d3436;
             --wm-silver: #7f8c8d;
             --wm-glass: rgba(10, 10, 15, 0.9);
-            --lcd-bg: #7bb552; /* Classic Green LCD */
+            --lcd-bg: #7bb552; 
             --lcd-text: #243b12;
             --orange-led: #ff4d00;
         }
@@ -27,6 +27,8 @@
 
         .walkman-wm2 {
             height: 92vh;
+            width: 95vw;
+            max-width: 450px;
             aspect-ratio: 10 / 16;
             background-color: var(--wm-metallic);
             border-radius: 15px;
@@ -35,9 +37,9 @@
             border: 1px solid #111;
             display: flex;
             flex-direction: column;
+            margin: auto;
         }
 
-        /* Top Metal Section */
         .top-deck {
             height: 12%;
             background: linear-gradient(180deg, #4d4d4d, #222);
@@ -50,7 +52,6 @@
 
         .logo-w { color: #eee; font-weight: bold; font-size: 2.5vh; letter-spacing: -1px; font-family: sans-serif;}
 
-        /* Cassette Window */
         .window-frame {
             width: 80%;
             height: 35%;
@@ -65,8 +66,8 @@
         }
 
         .reel {
-            width: 11vh;
-            height: 11vh;
+            width: 28%;
+            aspect-ratio: 1/1;
             background: #000;
             border-radius: 50%;
             border: 4px dashed #222;
@@ -80,7 +81,6 @@
         .spinning-fast { animation: rotate 0.5s linear infinite; }
         @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-        /* LCD DISPLAY */
         .lcd-screen {
             width: 80%;
             height: 8vh;
@@ -100,12 +100,11 @@
         }
 
         .lcd-top { display: flex; justify-content: space-between; font-size: 1.4vh; }
-        .lcd-mid { font-size: 1.1vh; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+        .lcd-mid { font-size: 1.1vh; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; text-align: center; }
         
         .lcd-progress-bg { width: 100%; height: 6px; background: rgba(0,0,0,0.1); border: 1px solid var(--lcd-text); }
         #lcd-progress-bar { width: 0%; height: 100%; background: var(--lcd-text); }
 
-        /* Controls */
         .button-cluster {
             position: absolute;
             bottom: 4%;
@@ -146,7 +145,6 @@
 
         .led { width: 10px; height: 10px; background: #300; border-radius: 50%; }
         .led-on { background: var(--orange-led); box-shadow: 0 0 10px var(--orange-led); }
-
     </style>
 </head>
 <body>
@@ -167,7 +165,7 @@
                 <span id="lcd-index">TAPE --</span>
                 <span id="lcd-time">00:00</span>
             </div>
-            <div class="lcd-mid" id="lcd-name">NO TAPE INSERTED</div>
+            <div class="lcd-mid" id="lcd-name">LOAD FOLDER TO START</div>
             <div class="lcd-progress-bg">
                 <div id="lcd-progress-bar"></div>
             </div>
@@ -192,26 +190,71 @@
         const dirIn = document.getElementById('dir-in');
         const led = document.getElementById('power-led');
         const reels = document.querySelectorAll('.reel');
-        
-        // LCD Elements
         const lcdIndex = document.getElementById('lcd-index');
         const lcdTime = document.getElementById('lcd-time');
         const lcdName = document.getElementById('lcd-name');
         const lcdBar = document.getElementById('lcd-progress-bar');
 
-        let tracks = [];
-        let cur = 0;
+        let tracks = []; 
+        let currentTrackIndex = 0;
 
-        dirIn.onchange = (e) => {
-            tracks = Array.from(e.target.files).filter(f => f.type.startsWith('audio/') || f.name.endsWith('.wav'));
-            if(tracks.length > 0) { cur = 0; load(cur); }
+        // --- INDEXED DB LOGIC (Persistence) ---
+        const dbName = "WalkmanDB";
+        const storeName = "TapeStore";
+
+        function initDB() {
+            return new Promise((resolve) => {
+                const request = indexedDB.open(dbName, 1);
+                request.onupgradeneeded = (e) => {
+                    e.target.result.createObjectStore(storeName, { keyPath: "id" });
+                };
+                request.onsuccess = (e) => resolve(e.target.result);
+            });
+        }
+
+        async function saveTape(files) {
+            const db = await initDB();
+            const tx = db.transaction(storeName, "readwrite");
+            const store = tx.objectStore(storeName);
+            await store.clear();
+            
+            // Map files to storeable objects
+            const list = files.map((f, i) => ({ id: i, name: f.name, data: f }));
+            list.forEach(item => store.add(item));
+        }
+
+        async function loadTapeFromDB() {
+            const db = await initDB();
+            const tx = db.transaction(storeName, "readonly");
+            const store = tx.objectStore(storeName);
+            const request = store.getAll();
+            request.onsuccess = () => {
+                if (request.result.length > 0) {
+                    tracks = request.result.map(item => item.data);
+                    loadTrack(0);
+                    lcdName.innerText = "TAPE RESTORED";
+                }
+            };
+        }
+
+        // --- APP LOGIC ---
+        dirIn.onchange = async (e) => {
+            const files = Array.from(e.target.files).filter(f => f.type.startsWith('audio/') || f.name.endsWith('.wav') || f.name.endsWith('.mp3'));
+            if(files.length > 0) {
+                tracks = files;
+                currentTrackIndex = 0;
+                await saveTape(files);
+                loadTrack(0);
+            }
         };
 
-        function load(i) {
-            player.src = URL.createObjectURL(tracks[i]);
+        function loadTrack(i) {
+            if (!tracks[i]) return;
+            const url = URL.createObjectURL(tracks[i]);
+            player.src = url;
             lcdName.innerText = tracks[i].name;
             lcdIndex.innerText = `TAPE ${i + 1}/${tracks.length}`;
-            if (!player.paused) player.play();
+            lcdBar.style.width = "0%";
         }
 
         document.getElementById('play').onclick = () => {
@@ -236,15 +279,15 @@
 
         document.getElementById('next').onclick = () => {
             if(!tracks.length) return;
-            cur = (cur + 1) % tracks.length;
-            load(cur);
+            currentTrackIndex = (currentTrackIndex + 1) % tracks.length;
+            loadTrack(currentTrackIndex);
             document.getElementById('play').click();
         };
 
         document.getElementById('prev').onclick = () => {
             if(!tracks.length) return;
-            cur = (cur - 1 + tracks.length) % tracks.length;
-            load(cur);
+            currentTrackIndex = (currentTrackIndex - 1 + tracks.length) % tracks.length;
+            loadTrack(currentTrackIndex);
             document.getElementById('play').click();
         };
 
@@ -264,6 +307,9 @@
                 if(cls) r.classList.add(cls);
             });
         }
+
+        // Initialize on load
+        window.onload = loadTapeFromDB;
     </script>
 </body>
 </html>
