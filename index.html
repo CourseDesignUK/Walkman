@@ -3,173 +3,190 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Retro Multi-Format Player</title>
+    <title>Walkman TPS-L2 Player</title>
     <style>
         :root {
-            --plastic-black: #1a1a1a;
-            --tape-gray: #333;
-            --accent-gold: #d4af37;
-            --window-tint: rgba(0, 0, 0, 0.6);
+            --walkman-blue: #2b468a;
+            --metal-silver: #bdc3c7;
+            --hot-orange: #ff9f43;
+            --window-tint: rgba(0, 0, 0, 0.7);
         }
 
         body {
-            background-color: #1e272e;
+            background-color: #4b6584;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100vh;
             margin: 0;
-            font-family: 'Courier New', Courier, monospace;
-            color: white;
+            font-family: Arial, sans-serif;
         }
 
-        .cassette {
-            width: 420px;
-            height: 260px;
-            background-color: var(--plastic-black);
-            border-radius: 12px;
-            position: relative;
-            box-shadow: 0 25px 60px rgba(0,0,0,0.8);
-            border: 2px solid #333;
-            padding: 15px;
-        }
-
-        /* The Sticker Label */
-        .label {
-            width: 100%;
-            height: 140px;
-            background: #dcdde1;
+        /* Main Device Body */
+        .walkman {
+            width: 280px;
+            height: 480px;
+            background-color: var(--walkman-blue);
             border-radius: 8px;
-            background: repeating-linear-gradient(0deg, #dcdde1, #dcdde1 10px, #f5f6fa 12px);
+            position: relative;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            border-left: 15px solid #223a75;
+            overflow: hidden;
+        }
+
+        /* Silver Side Panel */
+        .side-panel {
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 60px;
+            height: 100%;
+            background: linear-gradient(to right, #95a5a6, #bdc3c7, #7f8c8d);
+            border-left: 2px solid #7f8c8d;
+        }
+
+        /* Logo Branding */
+        .branding {
+            color: white;
+            padding: 30px 20px;
+        }
+        .branding h1 { font-size: 28px; margin: 0; letter-spacing: 2px; }
+        .branding p { font-size: 8px; margin: 5px 0; opacity: 0.8; }
+
+        /* Vertical Cassette Window */
+        .window-container {
+            width: 120px;
+            height: 240px;
+            background: var(--window-tint);
+            margin-left: 40px;
+            border-radius: 4px;
+            border: 3px solid #1a1a1a;
+            position: relative;
             display: flex;
             flex-direction: column;
             align-items: center;
-            border-top: 20px solid #c0392b; /* Red Stripe */
-        }
-
-        #file-name {
-            margin-top: 10px;
-            font-weight: bold;
-            color: #2f3640;
-            font-size: 13px;
-            text-align: center;
-            width: 80%;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        /* Tape Reels */
-        .reels-area {
-            display: flex;
-            justify-content: space-between;
-            width: 220px;
-            margin-top: 15px;
+            justify-content: space-around;
+            padding: 20px 0;
         }
 
         .reel {
-            width: 70px;
-            height: 70px;
+            width: 65px;
+            height: 65px;
             background: #111;
             border-radius: 50%;
-            border: 6px dashed #444;
+            border: 4px dashed #555;
+            position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
         }
-
         .reel::after {
-            content: '';
-            width: 20px;
-            height: 20px;
-            background: #666;
-            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+            content: '+';
+            color: #444;
+            font-size: 20px;
         }
 
-        /* Animation class */
-        .spinning {
-            animation: rotate 3s linear infinite;
+        /* Progress Tape (The brown magnetic strip) */
+        .tape-track {
+            width: 80%;
+            height: 10px;
+            background: #222;
         }
+        #tape-progress {
+            height: 100%;
+            width: 0%;
+            background: #5d4037;
+            box-shadow: 0 0 5px rgba(0,0,0,0.5);
+        }
+
+        /* Animation */
+        .spinning { animation: rotate 2s linear infinite; }
+        .spinning-fast { animation: rotate 0.5s linear infinite; }
 
         @keyframes rotate {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
         }
 
-        /* Bottom Tape Window */
-        .tape-window {
-            width: 180px;
-            height: 40px;
-            background: var(--window-tint);
-            margin: 25px auto 0;
-            border-radius: 4px;
-            position: relative;
-            overflow: hidden;
-            border: 2px solid #111;
-        }
-
-        #progress-tape {
-            height: 100%;
-            width: 0%;
-            background: #443322; /* Magnetic tape color */
-            transition: width 0.1s linear;
-        }
-
-        /* Buttons */
-        .controls {
-            margin-top: 40px;
-            display: flex;
-            gap: 10px;
-        }
-
-        button, .upload-btn {
-            padding: 12px 24px;
-            background: #34495e;
-            color: white;
+        /* Buttons on Side and Top */
+        .top-button {
+            position: absolute;
+            top: 10px;
+            left: 50px;
+            width: 60px;
+            height: 25px;
+            background: var(--hot-orange);
             border: none;
-            border-bottom: 5px solid #2c3e50;
+            border-radius: 4px;
             cursor: pointer;
+            box-shadow: 0 4px 0 #d35400;
+        }
+
+        .controls {
+            position: absolute;
+            right: 5px;
+            top: 100px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .btn-side {
+            width: 50px;
+            height: 40px;
+            background: #ecf0f1;
+            border: 1px solid #bdc3c7;
+            cursor: pointer;
+            font-size: 10px;
             font-weight: bold;
-            transition: 0.1s;
+            box-shadow: -2px 2px 0 #95a5a6;
         }
+        .btn-side:active { transform: translateX(-2px); box-shadow: 0 0 0; }
 
-        button:active {
-            border-bottom: 1px solid #2c3e50;
-            transform: translateY(4px);
+        #file-name {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            color: white;
+            font-size: 10px;
+            width: 150px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
-
-        .upload-btn { background: #27ae60; border-color: #1e8449; }
-
-        input[type="file"] { display: none; }
     </style>
 </head>
 <body>
 
-    <h2 style="margin-bottom: 30px;">HI-FI AUDIO DECK</h2>
-
-    <div class="cassette">
-        <div class="label">
-            <div id="file-name">LOAD WAV / MP3</div>
-            <div class="reels-area">
-                <div class="reel" id="reel-l"></div>
-                <div class="reel" id="reel-r"></div>
-            </div>
-        </div>
+    <div class="walkman">
+        <button class="top-button" onclick="document.getElementById('audio-upload').click()"></button>
+        <div class="side-panel"></div>
         
-        <div class="tape-window">
-            <div id="progress-tape"></div>
+        <div class="branding">
+            <h1>SONY</h1>
+            <p>STEREO CASSETTE PLAYER TPS-L2</p>
+            <h2 style="font-style: italic; letter-spacing: 5px; margin-top: 40px; opacity: 0.6;">STEREO</h2>
+        </div>
+
+        <div class="window-container">
+            <div class="reel" id="reel-t"></div>
+            <div class="tape-track"><div id="tape-progress"></div></div>
+            <div class="reel" id="reel-b"></div>
+        </div>
+
+        <div id="file-name">NO TAPE INSERTED</div>
+
+        <div class="controls">
+            <button class="btn-side" id="play-btn">PLAY</button>
+            <button class="btn-side" id="stop-btn">STOP</button>
+            <button class="btn-side" id="rew-btn">REW</button>
+            <button class="btn-side" id="ff-btn">FF</button>
         </div>
     </div>
 
-    <div class="controls">
-        <label for="audio-upload" class="upload-btn">EJECT / LOAD</label>
-        <input type="file" id="audio-upload" accept=".wav, .mp3, .ogg">
-        
-        <button id="play-btn">PLAY</button>
-        <button id="pause-btn">STOP</button>
-    </div>
-
+    <input type="file" id="audio-upload" hidden accept=".wav, .mp3, .ogg">
     <audio id="audio-player"></audio>
 
     <script>
@@ -177,43 +194,53 @@
         const audioPlayer = document.getElementById('audio-player');
         const fileNameDisplay = document.getElementById('file-name');
         const playBtn = document.getElementById('play-btn');
-        const pauseBtn = document.getElementById('pause-btn');
+        const stopBtn = document.getElementById('stop-btn');
+        const ffBtn = document.getElementById('ff-btn');
+        const rewBtn = document.getElementById('rew-btn');
         const reels = document.querySelectorAll('.reel');
-        const progressTape = document.getElementById('progress-tape');
+        const progress = document.getElementById('tape-progress');
 
-        // Handle loading WAV or MP3
         audioUpload.addEventListener('change', function() {
             const file = this.files[0];
             if (file) {
-                const url = URL.createObjectURL(file);
-                audioPlayer.src = url;
+                audioPlayer.src = URL.createObjectURL(file);
                 fileNameDisplay.textContent = file.name.toUpperCase();
-                // Reset progress
-                progressTape.style.width = "0%";
             }
         });
 
         playBtn.addEventListener('click', () => {
-            if (audioPlayer.src) {
-                audioPlayer.play();
-                reels.forEach(r => r.classList.add('spinning'));
+            audioPlayer.playbackRate = 1.0;
+            audioPlayer.play();
+            setReels('spinning');
+        });
+
+        stopBtn.addEventListener('click', () => {
+            audioPlayer.pause();
+            setReels(null);
+        });
+
+        ffBtn.addEventListener('click', () => {
+            if (!audioPlayer.paused) {
+                audioPlayer.playbackRate = 3.0;
+                setReels('spinning-fast');
             }
         });
 
-        pauseBtn.addEventListener('click', () => {
-            audioPlayer.pause();
-            reels.forEach(r => r.classList.remove('spinning'));
+        rewBtn.addEventListener('click', () => {
+            audioPlayer.currentTime -= 5; // Simple jump back
         });
 
-        // Update visual tape progress
         audioPlayer.addEventListener('timeupdate', () => {
-            const percentage = (audioPlayer.currentTime / audioPlayer.duration) * 100;
-            progressTape.style.width = percentage + "%";
+            const p = (audioPlayer.currentTime / audioPlayer.duration) * 100;
+            progress.style.width = p + "%";
         });
 
-        audioPlayer.addEventListener('ended', () => {
-            reels.forEach(r => r.classList.remove('spinning'));
-        });
+        function setReels(className) {
+            reels.forEach(r => {
+                r.className = 'reel';
+                if (className) r.classList.add(className);
+            });
+        }
     </script>
 </body>
 </html>
