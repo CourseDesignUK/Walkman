@@ -3,258 +3,259 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Walkman Full Screen</title>
+    <title>Walkman WM-2 Player</title>
     <style>
         :root {
-            --walkman-blue: #2b468a;
-            --metal-silver: #bdc3c7;
-            --hot-orange: #ff9f43;
-            --window-tint: rgba(0, 0, 0, 0.75);
+            --wm-metallic: #2d3436;
+            --wm-silver: #7f8c8d;
+            --wm-glass: rgba(20, 20, 25, 0.85);
+            --wm-accent: #dcdde1;
+            --orange-led: #ff4d00;
         }
 
         body {
-            background-color: #1a1a1a;
+            background-color: #121212;
             display: flex;
             align-items: center;
             justify-content: center;
             height: 100vh;
             margin: 0;
-            font-family: 'Helvetica Neue', sans-serif;
+            font-family: Arial, sans-serif;
             overflow: hidden;
         }
 
-        /* Full Screen Walkman Scaling */
-        .walkman {
-            height: 95vh;
-            aspect-ratio: 10 / 17;
-            background-color: var(--walkman-blue);
-            border-radius: 20px;
+        /* WM-2 Body Shape */
+        .walkman-wm2 {
+            height: 90vh;
+            aspect-ratio: 10 / 15;
+            background-color: var(--wm-metallic);
+            border-radius: 12px;
             position: relative;
-            box-shadow: 0 50px 100px rgba(0,0,0,0.9);
+            box-shadow: 0 50px 100px rgba(0,0,0,0.8), inset 0 0 20px rgba(255,255,255,0.1);
+            border: 2px solid #1a1a1a;
             display: flex;
             flex-direction: column;
-            border-left: 20px solid #223a75;
-            transition: transform 0.3s ease;
+            overflow: hidden;
         }
 
-        .side-panel {
-            position: absolute;
-            right: 0;
-            top: 0;
-            width: 20%;
-            height: 100%;
-            background: linear-gradient(to right, #95a5a6, #bdc3c7, #7f8c8d);
-            border-left: 3px solid #7f8c8d;
-            border-radius: 0 20px 20px 0;
-        }
-
-        .branding {
-            color: white;
-            padding: 8% 10%;
-        }
-        .branding h1 { font-size: 4vh; margin: 0; letter-spacing: 5px; font-weight: 900; }
-        .branding p { font-size: 1.2vh; margin: 5px 0; opacity: 0.8; letter-spacing: 1px;}
-
-        /* The Window */
-        .window-container {
-            width: 50%;
-            height: 45%;
-            background: var(--window-tint);
-            margin-left: 15%;
-            border-radius: 10px;
-            border: 5px solid #111;
+        /* The stepped silver top part of the WM-2 */
+        .top-deck {
+            height: 15%;
+            background: linear-gradient(180deg, #444, #222);
+            border-bottom: 4px solid #111;
             display: flex;
-            flex-direction: column;
             align-items: center;
+            padding-left: 20px;
+        }
+
+        .logo-w {
+            color: var(--wm-accent);
+            font-weight: bold;
+            font-size: 3vh;
+            letter-spacing: -2px;
+        }
+
+        /* Front Cassette Window */
+        .window-frame {
+            width: 75%;
+            height: 40%;
+            background: var(--wm-glass);
+            margin: 20px auto;
+            border: 8px solid #1a1a1a;
+            border-radius: 4px;
+            display: flex;
             justify-content: space-around;
-            padding: 10px;
-            box-shadow: inset 0 0 30px rgba(0,0,0,1);
+            align-items: center;
+            box-shadow: inset 0 0 40px rgba(0,0,0,0.9);
+            position: relative;
         }
 
         .reel {
-            width: 10vh;
-            height: 10vh;
-            background: #080808;
+            width: 12vh;
+            height: 12vh;
+            background: #050505;
             border-radius: 50%;
-            border: 6px dashed #333;
+            border: 4px dashed #333;
             display: flex;
             align-items: center;
             justify-content: center;
-            position: relative;
         }
-        .reel::after { content: '✖'; color: #222; font-size: 3vh; }
+        .reel::after {
+            content: '';
+            width: 20%; height: 20%;
+            background: #222;
+            transform: rotate(45deg);
+        }
 
-        .spinning { animation: rotate 2.5s linear infinite; }
-        .spinning-fast { animation: rotate 0.5s linear infinite; }
-
+        .spinning { animation: rotate 3s linear infinite; }
+        .spinning-fast { animation: rotate 0.6s linear infinite; }
         @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-        /* The controls on the silver side */
-        .controls {
+        /* Iconic WM-2 Diagonal Control Panel */
+        .button-cluster {
             position: absolute;
-            right: 2%;
-            top: 20%;
-            width: 16%;
-            display: flex;
-            flex-direction: column;
-            gap: 2vh;
+            bottom: 5%;
+            right: 5%;
+            width: 50%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            transform: rotate(-5deg); /* Subtle tilt common in Sony design */
         }
 
-        .btn-side {
-            width: 100%;
+        .wm2-btn {
+            background: #3d3d3d;
+            border: 1px solid #111;
+            color: #bdc3c7;
+            padding: 15px 5px;
+            font-size: 1vh;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
+            text-transform: uppercase;
+        }
+
+        .wm2-btn:active {
+            background: #222;
+            box-shadow: inset 2px 2px 5px black;
+            transform: translate(1px, 1px);
+        }
+
+        .play-btn {
+            grid-column: span 2;
+            background: #444;
             height: 6vh;
-            background: #eee;
-            border: 1px solid #999;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 1vh;
-            font-weight: bold;
-            box-shadow: -4px 4px 0 #7f8c8d;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
+            font-size: 1.5vh;
+            border-top: 3px solid #666;
         }
-        .btn-side:active { transform: translate(-2px, 2px); box-shadow: -1px 1px 0 #7f8c8d; }
 
-        /* Hot Line Orange Button */
-        .orange-btn {
+        /* Operation LED */
+        .led {
             position: absolute;
-            top: -10px;
-            left: 20%;
-            width: 25%;
-            height: 4vh;
-            background: var(--hot-orange);
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            box-shadow: 0 6px 0 #d35400;
-            color: white;
-            font-size: 1vh;
-            font-weight: bold;
+            top: 20px;
+            right: 20px;
+            width: 8px;
+            height: 8px;
+            background: #300;
+            border-radius: 50%;
+        }
+        .led-on {
+            background: var(--orange-led);
+            box-shadow: 0 0 10px var(--orange-led);
         }
 
-        #file-info {
+        .eject-label {
             position: absolute;
             bottom: 5%;
             left: 10%;
-            color: #bdc3c7;
-            font-size: 1.4vh;
-            width: 60%;
+            background: #c0392b;
+            color: white;
+            padding: 10px;
+            font-size: 1vh;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 2px;
         }
 
-        .arrow-up {
-            width: 0; height: 0; 
-            border-left: 15px solid transparent;
-            border-right: 15px solid transparent;
-            border-bottom: 30px solid rgba(255,255,255,0.2);
-            margin-top: 20px;
+        #track-info {
+            position: absolute;
+            top: 18%;
+            left: 15%;
+            color: #7f8c8d;
+            font-size: 1.2vh;
+            font-family: monospace;
         }
+
     </style>
 </head>
 <body>
 
-    <div class="walkman">
-        <button class="orange-btn" onclick="document.getElementById('folder-upload').click()">LOAD ALBUM</button>
-        <div class="side-panel"></div>
-        
-        <div class="branding">
-            <h1>SONY</h1>
-            <p>STEREO CASSETTE PLAYER TPS-L2</p>
-            <div style="font-size: 4vh; font-style: italic; margin-top: 2vh; opacity: 0.3; border: 2px solid white; padding: 5px; width: fit-content;">STEREO</div>
+    <div class="walkman-wm2">
+        <div class="top-deck">
+            <div class="logo-w">WALKMAN <span style="font-weight: 100; font-size: 1.5vh;">WM-2</span></div>
+            <div class="led" id="power-led"></div>
         </div>
 
-        <div class="window-container">
-            <div class="reel" id="reel-t"></div>
-            <div class="arrow-up"></div>
-            <div class="reel" id="reel-b"></div>
+        <div id="track-info">NO TAPE DETECTED</div>
+
+        <div class="window-frame">
+            <div class="reel" id="reel-l"></div>
+            <div class="reel" id="reel-r"></div>
         </div>
 
-        <div id="file-info">INSERT ALBUM FOLDER</div>
+        <div class="eject-label" onclick="document.getElementById('folder-input').click()">LOAD FOLDER</div>
 
-        <div class="controls">
-            <button class="btn-side" id="play-btn">PLAY</button>
-            <button class="btn-side" id="stop-btn">STOP</button>
-            <button class="btn-side" id="prev-btn">PREV</button>
-            <button class="btn-side" id="next-btn">NEXT</button>
-            <button class="btn-side" id="ff-btn">FAST F</button>
+        <div class="button-cluster">
+            <button class="wm2-btn play-btn" id="play">PLAY</button>
+            <button class="wm2-btn" id="stop">STOP</button>
+            <button class="wm2-btn" id="ff">F-FWD</button>
+            <button class="wm2-btn" id="prev">PREV</button>
+            <button class="wm2-btn" id="next">NEXT</button>
         </div>
     </div>
 
-    <input type="file" id="folder-upload" hidden webkitdirectory directory multiple>
-    <audio id="audio-player"></audio>
+    <input type="file" id="folder-input" hidden webkitdirectory directory multiple>
+    <audio id="audio"></audio>
 
     <script>
-        const folderUpload = document.getElementById('folder-upload');
-        const audioPlayer = document.getElementById('audio-player');
-        const fileInfo = document.getElementById('file-info');
+        const audio = document.getElementById('audio');
+        const folderInput = document.getElementById('folder-input');
+        const trackInfo = document.getElementById('track-info');
+        const led = document.getElementById('power-led');
         const reels = document.querySelectorAll('.reel');
-        
+
         let playlist = [];
-        let currentIndex = 0;
+        let cursor = 0;
 
-        folderUpload.addEventListener('change', (e) => {
-            const files = Array.from(e.target.files);
-            // Filter only audio files
-            playlist = files.filter(f => f.type.startsWith('audio/') || f.name.endsWith('.wav'));
-            
-            if (playlist.length > 0) {
-                currentIndex = 0;
-                loadTrack(currentIndex);
+        folderInput.onchange = (e) => {
+            playlist = Array.from(e.target.files).filter(f => f.type.startsWith('audio/') || f.name.endsWith('.wav'));
+            if(playlist.length > 0) {
+                cursor = 0;
+                loadTrack(cursor);
             }
-        });
+        };
 
-        function loadTrack(index) {
-            const file = playlist[index];
-            audioPlayer.src = URL.createObjectURL(file);
-            fileInfo.innerHTML = `TAPE: ${index + 1}/${playlist.length}<br>${file.name.substring(0, 20)}...`;
-            if (!audioPlayer.paused) audioPlayer.play();
+        function loadTrack(idx) {
+            audio.src = URL.createObjectURL(playlist[idx]);
+            trackInfo.innerText = `TRACK: ${idx + 1} / ${playlist.length}`;
+            if (!audio.paused) audio.play();
         }
 
-        document.getElementById('play-btn').onclick = () => {
-            if (audioPlayer.src) {
-                audioPlayer.playbackRate = 1.0;
-                audioPlayer.play();
-                setReels('spinning');
-            }
+        document.getElementById('play').onclick = () => {
+            if(!audio.src) return;
+            audio.playbackRate = 1.0;
+            audio.play();
+            led.classList.add('led-on');
+            reels.forEach(r => r.className = 'reel spinning');
         };
 
-        document.getElementById('stop-btn').onclick = () => {
-            audioPlayer.pause();
-            setReels(null);
+        document.getElementById('stop').onclick = () => {
+            audio.pause();
+            led.classList.remove('led-on');
+            reels.forEach(r => r.className = 'reel');
         };
 
-        document.getElementById('next-btn').onclick = () => {
-            if (playlist.length === 0) return;
-            currentIndex = (currentIndex + 1) % playlist.length;
-            loadTrack(currentIndex);
-            audioPlayer.play();
-            setReels('spinning');
+        document.getElementById('ff').onclick = () => {
+            if(audio.paused) return;
+            audio.playbackRate = (audio.playbackRate === 1.0) ? 4.0 : 1.0;
+            reels.forEach(r => r.className = (audio.playbackRate > 1.0) ? 'reel spinning-fast' : 'reel spinning');
         };
 
-        document.getElementById('prev-btn').onclick = () => {
-            if (playlist.length === 0) return;
-            currentIndex = (currentIndex - 1 + playlist.length) % playlist.length;
-            loadTrack(currentIndex);
-            audioPlayer.play();
-            setReels('spinning');
+        document.getElementById('next').onclick = () => {
+            if(!playlist.length) return;
+            cursor = (cursor + 1) % playlist.length;
+            loadTrack(cursor);
+            document.getElementById('play').click();
         };
 
-        document.getElementById('ff-btn').onclick = () => {
-            if (!audioPlayer.paused) {
-                audioPlayer.playbackRate = (audioPlayer.playbackRate === 1.0) ? 4.0 : 1.0;
-                setReels(audioPlayer.playbackRate > 1.0 ? 'spinning-fast' : 'spinning');
-            }
+        document.getElementById('prev').onclick = () => {
+            if(!playlist.length) return;
+            cursor = (cursor - 1 + playlist.length) % playlist.length;
+            loadTrack(cursor);
+            document.getElementById('play').click();
         };
 
-        audioPlayer.onended = () => document.getElementById('next-btn').click();
-
-        function setReels(state) {
-            reels.forEach(r => {
-                r.className = 'reel';
-                if (state) r.classList.add(state);
-            });
-        }
+        audio.onended = () => document.getElementById('next').click();
     </script>
 </body>
 </html>
