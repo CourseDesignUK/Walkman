@@ -3,242 +3,256 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Walkman TPS-L2 Player</title>
+    <title>Walkman Full Screen</title>
     <style>
         :root {
             --walkman-blue: #2b468a;
             --metal-silver: #bdc3c7;
             --hot-orange: #ff9f43;
-            --window-tint: rgba(0, 0, 0, 0.7);
+            --window-tint: rgba(0, 0, 0, 0.75);
         }
 
         body {
-            background-color: #4b6584;
+            background-color: #1a1a1a;
             display: flex;
             align-items: center;
             justify-content: center;
             height: 100vh;
             margin: 0;
-            font-family: Arial, sans-serif;
-        }
-
-        /* Main Device Body */
-        .walkman {
-            width: 280px;
-            height: 480px;
-            background-color: var(--walkman-blue);
-            border-radius: 8px;
-            position: relative;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
-            display: flex;
-            flex-direction: column;
-            border-left: 15px solid #223a75;
+            font-family: 'Helvetica Neue', sans-serif;
             overflow: hidden;
         }
 
-        /* Silver Side Panel */
+        /* Full Screen Walkman Scaling */
+        .walkman {
+            height: 95vh;
+            aspect-ratio: 10 / 17;
+            background-color: var(--walkman-blue);
+            border-radius: 20px;
+            position: relative;
+            box-shadow: 0 50px 100px rgba(0,0,0,0.9);
+            display: flex;
+            flex-direction: column;
+            border-left: 20px solid #223a75;
+            transition: transform 0.3s ease;
+        }
+
         .side-panel {
             position: absolute;
             right: 0;
             top: 0;
-            width: 60px;
+            width: 20%;
             height: 100%;
             background: linear-gradient(to right, #95a5a6, #bdc3c7, #7f8c8d);
-            border-left: 2px solid #7f8c8d;
+            border-left: 3px solid #7f8c8d;
+            border-radius: 0 20px 20px 0;
         }
 
-        /* Logo Branding */
         .branding {
             color: white;
-            padding: 30px 20px;
+            padding: 8% 10%;
         }
-        .branding h1 { font-size: 28px; margin: 0; letter-spacing: 2px; }
-        .branding p { font-size: 8px; margin: 5px 0; opacity: 0.8; }
+        .branding h1 { font-size: 4vh; margin: 0; letter-spacing: 5px; font-weight: 900; }
+        .branding p { font-size: 1.2vh; margin: 5px 0; opacity: 0.8; letter-spacing: 1px;}
 
-        /* Vertical Cassette Window */
+        /* The Window */
         .window-container {
-            width: 120px;
-            height: 240px;
+            width: 50%;
+            height: 45%;
             background: var(--window-tint);
-            margin-left: 40px;
-            border-radius: 4px;
-            border: 3px solid #1a1a1a;
-            position: relative;
+            margin-left: 15%;
+            border-radius: 10px;
+            border: 5px solid #111;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: space-around;
-            padding: 20px 0;
+            padding: 10px;
+            box-shadow: inset 0 0 30px rgba(0,0,0,1);
         }
 
         .reel {
-            width: 65px;
-            height: 65px;
-            background: #111;
+            width: 10vh;
+            height: 10vh;
+            background: #080808;
             border-radius: 50%;
-            border: 4px dashed #555;
-            position: relative;
+            border: 6px dashed #333;
             display: flex;
             align-items: center;
             justify-content: center;
+            position: relative;
         }
-        .reel::after {
-            content: '+';
-            color: #444;
-            font-size: 20px;
-        }
+        .reel::after { content: '✖'; color: #222; font-size: 3vh; }
 
-        /* Progress Tape (The brown magnetic strip) */
-        .tape-track {
-            width: 80%;
-            height: 10px;
-            background: #222;
-        }
-        #tape-progress {
-            height: 100%;
-            width: 0%;
-            background: #5d4037;
-            box-shadow: 0 0 5px rgba(0,0,0,0.5);
-        }
-
-        /* Animation */
-        .spinning { animation: rotate 2s linear infinite; }
+        .spinning { animation: rotate 2.5s linear infinite; }
         .spinning-fast { animation: rotate 0.5s linear infinite; }
 
-        @keyframes rotate {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-        /* Buttons on Side and Top */
-        .top-button {
-            position: absolute;
-            top: 10px;
-            left: 50px;
-            width: 60px;
-            height: 25px;
-            background: var(--hot-orange);
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            box-shadow: 0 4px 0 #d35400;
-        }
-
+        /* The controls on the silver side */
         .controls {
             position: absolute;
-            right: 5px;
-            top: 100px;
+            right: 2%;
+            top: 20%;
+            width: 16%;
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 2vh;
         }
 
         .btn-side {
-            width: 50px;
-            height: 40px;
-            background: #ecf0f1;
-            border: 1px solid #bdc3c7;
+            width: 100%;
+            height: 6vh;
+            background: #eee;
+            border: 1px solid #999;
+            border-radius: 4px;
             cursor: pointer;
-            font-size: 10px;
+            font-size: 1vh;
             font-weight: bold;
-            box-shadow: -2px 2px 0 #95a5a6;
+            box-shadow: -4px 4px 0 #7f8c8d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
         }
-        .btn-side:active { transform: translateX(-2px); box-shadow: 0 0 0; }
+        .btn-side:active { transform: translate(-2px, 2px); box-shadow: -1px 1px 0 #7f8c8d; }
 
-        #file-name {
+        /* Hot Line Orange Button */
+        .orange-btn {
             position: absolute;
-            bottom: 20px;
-            left: 20px;
+            top: -10px;
+            left: 20%;
+            width: 25%;
+            height: 4vh;
+            background: var(--hot-orange);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            box-shadow: 0 6px 0 #d35400;
             color: white;
-            font-size: 10px;
-            width: 150px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            font-size: 1vh;
+            font-weight: bold;
+        }
+
+        #file-info {
+            position: absolute;
+            bottom: 5%;
+            left: 10%;
+            color: #bdc3c7;
+            font-size: 1.4vh;
+            width: 60%;
+        }
+
+        .arrow-up {
+            width: 0; height: 0; 
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-bottom: 30px solid rgba(255,255,255,0.2);
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
 
     <div class="walkman">
-        <button class="top-button" onclick="document.getElementById('audio-upload').click()"></button>
+        <button class="orange-btn" onclick="document.getElementById('folder-upload').click()">LOAD ALBUM</button>
         <div class="side-panel"></div>
         
         <div class="branding">
             <h1>SONY</h1>
             <p>STEREO CASSETTE PLAYER TPS-L2</p>
-            <h2 style="font-style: italic; letter-spacing: 5px; margin-top: 40px; opacity: 0.6;">STEREO</h2>
+            <div style="font-size: 4vh; font-style: italic; margin-top: 2vh; opacity: 0.3; border: 2px solid white; padding: 5px; width: fit-content;">STEREO</div>
         </div>
 
         <div class="window-container">
             <div class="reel" id="reel-t"></div>
-            <div class="tape-track"><div id="tape-progress"></div></div>
+            <div class="arrow-up"></div>
             <div class="reel" id="reel-b"></div>
         </div>
 
-        <div id="file-name">NO TAPE INSERTED</div>
+        <div id="file-info">INSERT ALBUM FOLDER</div>
 
         <div class="controls">
             <button class="btn-side" id="play-btn">PLAY</button>
             <button class="btn-side" id="stop-btn">STOP</button>
-            <button class="btn-side" id="rew-btn">REW</button>
-            <button class="btn-side" id="ff-btn">FF</button>
+            <button class="btn-side" id="prev-btn">PREV</button>
+            <button class="btn-side" id="next-btn">NEXT</button>
+            <button class="btn-side" id="ff-btn">FAST F</button>
         </div>
     </div>
 
-    <input type="file" id="audio-upload" hidden accept=".wav, .mp3, .ogg">
+    <input type="file" id="folder-upload" hidden webkitdirectory directory multiple>
     <audio id="audio-player"></audio>
 
     <script>
-        const audioUpload = document.getElementById('audio-upload');
+        const folderUpload = document.getElementById('folder-upload');
         const audioPlayer = document.getElementById('audio-player');
-        const fileNameDisplay = document.getElementById('file-name');
-        const playBtn = document.getElementById('play-btn');
-        const stopBtn = document.getElementById('stop-btn');
-        const ffBtn = document.getElementById('ff-btn');
-        const rewBtn = document.getElementById('rew-btn');
+        const fileInfo = document.getElementById('file-info');
         const reels = document.querySelectorAll('.reel');
-        const progress = document.getElementById('tape-progress');
+        
+        let playlist = [];
+        let currentIndex = 0;
 
-        audioUpload.addEventListener('change', function() {
-            const file = this.files[0];
-            if (file) {
-                audioPlayer.src = URL.createObjectURL(file);
-                fileNameDisplay.textContent = file.name.toUpperCase();
+        folderUpload.addEventListener('change', (e) => {
+            const files = Array.from(e.target.files);
+            // Filter only audio files
+            playlist = files.filter(f => f.type.startsWith('audio/') || f.name.endsWith('.wav'));
+            
+            if (playlist.length > 0) {
+                currentIndex = 0;
+                loadTrack(currentIndex);
             }
         });
 
-        playBtn.addEventListener('click', () => {
-            audioPlayer.playbackRate = 1.0;
-            audioPlayer.play();
-            setReels('spinning');
-        });
+        function loadTrack(index) {
+            const file = playlist[index];
+            audioPlayer.src = URL.createObjectURL(file);
+            fileInfo.innerHTML = `TAPE: ${index + 1}/${playlist.length}<br>${file.name.substring(0, 20)}...`;
+            if (!audioPlayer.paused) audioPlayer.play();
+        }
 
-        stopBtn.addEventListener('click', () => {
+        document.getElementById('play-btn').onclick = () => {
+            if (audioPlayer.src) {
+                audioPlayer.playbackRate = 1.0;
+                audioPlayer.play();
+                setReels('spinning');
+            }
+        };
+
+        document.getElementById('stop-btn').onclick = () => {
             audioPlayer.pause();
             setReels(null);
-        });
+        };
 
-        ffBtn.addEventListener('click', () => {
+        document.getElementById('next-btn').onclick = () => {
+            if (playlist.length === 0) return;
+            currentIndex = (currentIndex + 1) % playlist.length;
+            loadTrack(currentIndex);
+            audioPlayer.play();
+            setReels('spinning');
+        };
+
+        document.getElementById('prev-btn').onclick = () => {
+            if (playlist.length === 0) return;
+            currentIndex = (currentIndex - 1 + playlist.length) % playlist.length;
+            loadTrack(currentIndex);
+            audioPlayer.play();
+            setReels('spinning');
+        };
+
+        document.getElementById('ff-btn').onclick = () => {
             if (!audioPlayer.paused) {
-                audioPlayer.playbackRate = 3.0;
-                setReels('spinning-fast');
+                audioPlayer.playbackRate = (audioPlayer.playbackRate === 1.0) ? 4.0 : 1.0;
+                setReels(audioPlayer.playbackRate > 1.0 ? 'spinning-fast' : 'spinning');
             }
-        });
+        };
 
-        rewBtn.addEventListener('click', () => {
-            audioPlayer.currentTime -= 5; // Simple jump back
-        });
+        audioPlayer.onended = () => document.getElementById('next-btn').click();
 
-        audioPlayer.addEventListener('timeupdate', () => {
-            const p = (audioPlayer.currentTime / audioPlayer.duration) * 100;
-            progress.style.width = p + "%";
-        });
-
-        function setReels(className) {
+        function setReels(state) {
             reels.forEach(r => {
                 r.className = 'reel';
-                if (className) r.classList.add(className);
+                if (state) r.classList.add(state);
             });
         }
     </script>
