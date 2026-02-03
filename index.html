@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Walkman WM-2 Switch Edition</title>
+    <title>Walkman WM-2 Mix Tape</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
+
         :root {
             --wm-body: #222222;
             --wm-glass: rgba(0, 0, 0, 0.95);
@@ -55,11 +57,32 @@
 
         .logo-w { color: #888; font-weight: bold; font-size: 2.2vh; letter-spacing: -1px; font-family: sans-serif;}
 
+        /* Mixtape Sticker */
+        .mixtape-sticker {
+            width: 70%;
+            background: #e6e2cf; /* Off-white paper color */
+            margin: 15px auto 0 auto;
+            padding: 5px 10px;
+            font-family: 'Permanent Marker', cursive;
+            color: #1a1a1a;
+            font-size: 1.8vh;
+            text-align: center;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
+            transform: rotate(-1.5deg); /* Slight organic tilt */
+            border-radius: 2px;
+            border-left: 2px solid rgba(0,0,0,0.1);
+            border-top: 1px solid rgba(255,255,255,0.2);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            z-index: 5;
+        }
+
         .window-frame {
             width: 82%;
             height: 32%;
             background: var(--wm-glass);
-            margin: 20px auto 10px auto;
+            margin: 5px auto 10px auto;
             border: 4px solid #111;
             border-radius: 2px;
             display: flex;
@@ -133,65 +156,25 @@
         .lcd-progress-bg { width: 100%; height: 6px; background: var(--vdu-off); margin-top: auto; }
         #lcd-progress-bar { width: 0%; height: 100%; background: var(--lcd-text); }
 
-        /* Dolby Toggle Switch */
+        /* Dolby Switch */
         .dolby-switch-container {
-            position: absolute;
-            bottom: 10%;
-            left: 5%;
-            width: 30%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 5px;
+            position: absolute; bottom: 10%; left: 5%; width: 30%;
+            display: flex; flex-direction: column; align-items: center; gap: 5px;
         }
-
-        .dolby-label {
-            color: #666;
-            font-size: 0.8vh;
-            font-weight: bold;
-        }
-
-        #dolby-switch {
-            width: 40px;
-            height: 20px;
-            background: #111;
-            border: 1px solid #333;
-            position: relative;
-            cursor: pointer;
-        }
-
-        .switch-handle {
-            width: 50%;
-            height: 100%;
-            background: #444;
-            position: absolute;
-            left: 0;
-            transition: left 0.1s ease;
-            box-shadow: inset 0 0 5px rgba(255,255,255,0.1);
-        }
-
-        #dolby-switch.active .switch-handle {
-            left: 50%;
-            background: #555;
-        }
+        .dolby-label { color: #666; font-size: 0.8vh; font-weight: bold; }
+        #dolby-switch { width: 40px; height: 20px; background: #111; border: 1px solid #333; position: relative; cursor: pointer; }
+        .switch-handle { width: 50%; height: 100%; background: #444; position: absolute; left: 0; transition: left 0.1s ease; }
+        #dolby-switch.active .switch-handle { left: 50%; background: #555; }
 
         /* Buttons */
         .button-cluster {
             position: absolute; bottom: 4%; right: 5%; width: 55%;
             display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
         }
-
-        .wm2-btn {
-            background: #2a2a2a; border: 1px solid #000; color: #666;
-            padding: 12px 0; font-size: 1vh; font-weight: bold; cursor: pointer;
-        }
+        .wm2-btn { background: #2a2a2a; border: 1px solid #000; color: #666; padding: 12px 0; font-size: 1vh; font-weight: bold; cursor: pointer; }
         .wm2-btn:active { transform: translateY(1px); background: #1a1a1a; }
         .play-btn { grid-column: span 2; background: #333; color: #eee; height: 7vh; font-size: 1.6vh;}
-
-        .load-btn {
-            position: absolute; bottom: 4%; left: 5%; width: 30%; height: 5vh;
-            background: #5e1919; color: #ccc; font-size: 1vh; font-weight: bold; border: none; cursor: pointer;
-        }
+        .load-btn { position: absolute; bottom: 4%; left: 5%; width: 30%; height: 5vh; background: #5e1919; color: #ccc; font-size: 1vh; font-weight: bold; border: none; cursor: pointer; }
 
         .led { width: 8px; height: 8px; background: #1a0808; border-radius: 50%; }
         .led-on { background: var(--orange-led); box-shadow: 0 0 8px var(--orange-led); }
@@ -201,9 +184,11 @@
 
     <div class="walkman-wm2">
         <div class="top-deck">
-            <div class="logo-w">SONY <span style="font-weight: 100; font-size: 1.3vh;">WM-2 QUARTZ</span></div>
+            <div class="logo-w">XR Audio Labs <span style="font-weight: 100; font-size: 1.3vh;">WM-2 QUARTZ</span></div>
             <div class="led" id="power-led"></div>
         </div>
+
+        <div class="mixtape-sticker" id="mixtape-label">MY MIX TAPE</div>
 
         <div class="window-frame">
             <div class="reel-container">
@@ -228,9 +213,7 @@
 
         <div class="dolby-switch-container">
             <div class="dolby-label">DOLBY NR</div>
-            <div id="dolby-switch">
-                <div class="switch-handle"></div>
-            </div>
+            <div id="dolby-switch"><div class="switch-handle"></div></div>
         </div>
 
         <button class="load-btn" onclick="document.getElementById('dir-in').click()">EJECT / LOAD</button>
@@ -257,6 +240,7 @@
         const lcdTime = document.getElementById('lcd-time');
         const lcdBar = document.getElementById('lcd-progress-bar');
         const dolbySwitch = document.getElementById('dolby-switch');
+        const mixtapeLabel = document.getElementById('mixtape-label');
         
         let audioCtx, analyser, dataArray, dolbyFilter;
         let tracks = [];
@@ -293,27 +277,15 @@
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             analyser = audioCtx.createAnalyser();
             const source = audioCtx.createMediaElementSource(player);
-            
             dolbyFilter = audioCtx.createBiquadFilter();
             dolbyFilter.type = "lowpass";
             dolbyFilter.frequency.value = isDolbyOn ? 3000 : 20000;
-            
             source.connect(dolbyFilter);
             dolbyFilter.connect(analyser);
             analyser.connect(audioCtx.destination);
-            
             analyser.fftSize = 64;
             dataArray = new Uint8Array(analyser.frequencyBinCount);
             draw();
-        }
-
-        function toggleDolby() {
-            isDolbyOn = !isDolbyOn;
-            dolbySwitch.classList.toggle('active');
-            if (dolbyFilter) {
-                const targetFreq = isDolbyOn ? 3000 : 20000;
-                dolbyFilter.frequency.setTargetAtTime(targetFreq, audioCtx.currentTime, 0.1);
-            }
         }
 
         function draw() {
@@ -328,8 +300,14 @@
         }
 
         dirIn.onchange = async (e) => {
-            tracks = Array.from(e.target.files).filter(f => f.type.startsWith('audio/'));
-            if(tracks.length) loadTrack(0);
+            const files = Array.from(e.target.files).filter(f => f.type.startsWith('audio/'));
+            if(files.length > 0) {
+                tracks = files;
+                // Get folder name from the first file path
+                const folderName = files[0].webkitRelativePath.split('/')[0] || "MY MIX TAPE";
+                mixtapeLabel.innerText = folderName.toUpperCase();
+                loadTrack(0);
+            }
         };
 
         function loadTrack(i) {
@@ -339,7 +317,14 @@
             updateTapeSize(0);
         }
 
-        dolbySwitch.onclick = toggleDolby;
+        dolbySwitch.onclick = () => {
+            isDolbyOn = !isDolbyOn;
+            dolbySwitch.classList.toggle('active');
+            if (dolbyFilter) {
+                const targetFreq = isDolbyOn ? 3000 : 20000;
+                dolbyFilter.frequency.setTargetAtTime(targetFreq, audioCtx.currentTime, 0.1);
+            }
+        };
 
         document.getElementById('play').onclick = () => {
             if(!player.src) return;
@@ -365,18 +350,12 @@
 
         document.getElementById('next').onclick = () => { 
             let idx = tracks.findIndex(t => t.name === document.getElementById('lcd-name').innerText);
-            if (idx !== -1) {
-                loadTrack((idx + 1) % tracks.length); 
-                document.getElementById('play').click(); 
-            }
+            if (idx !== -1) { loadTrack((idx + 1) % tracks.length); document.getElementById('play').click(); }
         };
 
         document.getElementById('prev').onclick = () => { 
             let idx = tracks.findIndex(t => t.name === document.getElementById('lcd-name').innerText);
-            if (idx !== -1) {
-                loadTrack((idx - 1 + tracks.length) % tracks.length); 
-                document.getElementById('play').click(); 
-            }
+            if (idx !== -1) { loadTrack((idx - 1 + tracks.length) % tracks.length); document.getElementById('play').click(); }
         };
     </script>
 </body>
