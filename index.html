@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Walkman WM-2 Dynamic Tape</title>
+    <title>Walkman WM-2 Digital</title>
     <style>
         :root {
             --wm-body: #222222;
@@ -69,7 +69,6 @@
             overflow: hidden;
         }
 
-        /* Tape Reels */
         .reel-container {
             width: 35%;
             aspect-ratio: 1/1;
@@ -84,7 +83,7 @@
             background: var(--tape-color);
             border-radius: 50%;
             border: 1px solid #333;
-            width: 100%; /* Dynamically controlled via JS */
+            width: 100%;
             height: 100%;
             transition: width 0.5s linear, height 0.5s linear;
         }
@@ -106,7 +105,6 @@
         .spinning-fast { animation: rotate 0.6s linear infinite; }
         @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-        /* LCD Panel */
         .lcd-screen {
             width: 82%;
             height: 16vh;
@@ -157,7 +155,7 @@
 
     <div class="walkman-wm2">
         <div class="top-deck">
-            <div class="logo-w">SONY <span style="font-weight: 100; font-size: 1.3vh;">WM-2 QUARTZ</span></div>
+            <div class="logo-w">XR Audio Labs <span style="font-weight: 100; font-size: 1.3vh;">WM-2 QUARTZ</span></div>
             <div class="led" id="power-led"></div>
         </div>
 
@@ -221,7 +219,6 @@
             osc.start(); osc.stop(audioCtx.currentTime + 0.1);
         }
 
-        // Initialize VDU
         const vduPanel = document.getElementById('vdu-panel');
         ['L','R'].forEach(label => {
             const row = document.createElement('div');
@@ -233,11 +230,8 @@
         });
 
         function updateTapeSize(percent) {
-            // Supply (Left) shrinks from 100% to 40%
             const leftSize = 100 - (percent * 0.6);
-            // Take-up (Right) grows from 40% to 100%
             const rightSize = 40 + (percent * 0.6);
-            
             tapeL.style.width = tapeL.style.height = `${leftSize}%`;
             tapeR.style.width = tapeR.style.height = `${rightSize}%`;
         }
@@ -246,7 +240,6 @@
             const m = Math.floor(player.currentTime / 60);
             const s = Math.floor(player.currentTime % 60);
             lcdTime.innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-            
             const percent = (player.currentTime / player.duration) || 0;
             lcdBar.style.width = (percent * 100) + "%";
             updateTapeSize(percent * 100);
@@ -289,8 +282,14 @@
         }
 
         document.getElementById('play').onclick = () => {
-            playClick(); if(!player.src) return;
-            setupVisualizer(); if (audioCtx.state === 'suspended') audioCtx.resume();
+            playClick(); 
+            if(!player.src) return;
+            setupVisualizer(); 
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            
+            // ENSURE 1X SPEED ON PLAY
+            player.playbackRate = 1.0; 
+            
             player.play();
             led.classList.add('led-on');
             hubs.forEach(h => h.className = 'reel-hub spinning');
@@ -308,7 +307,19 @@
             hubs.forEach(h => h.className = player.playbackRate > 1.0 ? 'reel-hub spinning-fast' : 'reel-hub spinning');
         };
 
-        document.getElementById('next').onclick = () => { playClick(); loadTrack((tracks.indexOf(tracks.find(t => URL.createObjectURL(t) === player.src)) + 1) % tracks.length); document.getElementById('play').click(); };
+        document.getElementById('next').onclick = () => { 
+            playClick(); 
+            let nextIdx = (tracks.indexOf(tracks.find(t => t.name === document.getElementById('lcd-name').innerText)) + 1) % tracks.length;
+            loadTrack(nextIdx); 
+            document.getElementById('play').click(); 
+        };
+
+        document.getElementById('prev').onclick = () => { 
+            playClick(); 
+            let prevIdx = (tracks.indexOf(tracks.find(t => t.name === document.getElementById('lcd-name').innerText)) - 1 + tracks.length) % tracks.length;
+            loadTrack(prevIdx); 
+            document.getElementById('play').click(); 
+        };
     </script>
 </body>
 </html>
