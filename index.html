@@ -3,179 +3,214 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Walkman">
+    <link rel="apple-touch-icon" href="audio.png">
+
     <title>Walkman WM-2 Quartz</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
+
         :root {
-            --wm-body: #222222; --wm-glass: rgba(0, 0, 0, 0.95); --lcd-bg: #7bb552; 
-            --lcd-text: #1a2e0e; --vdu-on: #1a2e0e; --vdu-off: rgba(26, 46, 14, 0.15);
-            --orange-led: #ff4d00; --tape-color: #1a1a1a; --label-bg: rgba(230, 226, 207, 0.85);
+            --wm-body: #1a1a1a;
+            --wm-glass: rgba(0, 0, 0, 0.9);
+            --lcd-bg: #8dbd69; 
+            --lcd-text: #1a2e0e;
+            --vdu-on: #2a4e1e;
+            --vdu-off: rgba(26, 46, 14, 0.1);
+            --orange-led: #ff5500;
         }
-        body { background-color: #0f0f0f; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; font-family: 'Courier New', Courier, monospace; overflow: hidden; user-select: none; }
-        .walkman-wm2 { height: 92vh; width: 95vw; max-width: 420px; aspect-ratio: 10 / 16; background-color: var(--wm-body); border-radius: 8px; position: relative; box-shadow: 0 40px 80px rgba(0,0,0,0.8); border: 1px solid #000; display: flex; flex-direction: column; margin: auto; }
-        .top-deck { height: 10%; background: #1a1a1a; border-bottom: 2px solid #000; display: flex; align-items: center; padding: 0 20px; justify-content: space-between; }
-        .logo-w { color: #888; font-weight: bold; font-size: 2.2vh; letter-spacing: -1px; font-family: sans-serif;}
-        .window-frame { width: 82%; height: 32%; background: var(--wm-glass); margin: 20px auto 10px auto; border: 4px solid #111; border-radius: 2px; display: flex; flex-direction: column; justify-content: center; align-items: center; box-shadow: inset 0 0 40px #000; overflow: hidden; position: relative; }
-        .mixtape-sticker { width: 85%; background: var(--label-bg); padding: 4px 0; font-family: 'Permanent Marker', cursive; color: #222; font-size: 1.6vh; text-align: center; border-radius: 1px; box-shadow: 0 2px 4px rgba(0,0,0,0.3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; z-index: 10; position: absolute; top: 15%; border: 1px solid rgba(0,0,0,0.1); }
-        .reels-wrapper { width: 100%; display: flex; justify-content: space-around; align-items: center; margin-top: 15%; }
-        .reel-container { width: 32%; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; position: relative; }
-        .tape-mass { position: absolute; background: var(--tape-color); border-radius: 50%; border: 1px solid #222; width: 100%; height: 100%; transition: width 0.5s linear, height 0.5s linear; }
-        .reel-hub { width: 35%; height: 35%; background: #000; border-radius: 50%; border: 2px dashed #444; z-index: 2; display: flex; align-items: center; justify-content: center; }
-        .reel-hub::after { content: ''; width: 30%; height: 30%; background: #222; transform: rotate(45deg); }
-        .spinning { animation: rotate 3s linear infinite; }
-        .spinning-fast { animation: rotate 0.6s linear infinite; }
+
+        body {
+            background-color: #050505;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        .walkman-wm2 {
+            height: 90vh;
+            width: 90vw;
+            max-width: 420px;
+            aspect-ratio: 1 / 1.1;
+            background-color: var(--wm-body);
+            border-radius: 12px;
+            position: relative;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.9);
+            border: 2px solid #000;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        /* Top Header */
+        .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+        .logo-w { color: #ccc; font-weight: bold; font-size: 1.8vh; }
+        .sony-logo { color: #d14d2a; font-weight: 900; font-size: 2.5vh; font-family: 'Times New Roman', serif; }
+
+        /* Window Section */
+        .window-frame {
+            width: 100%;
+            height: 40%;
+            background: #0a0a0a;
+            border: 4px solid #111;
+            border-radius: 4px;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: inset 0 0 20px #000;
+            margin-bottom: 20px;
+        }
+
+        .mixtape-sticker {
+            width: 70%;
+            background: #e6e2cf;
+            padding: 5px;
+            font-family: 'Permanent Marker', cursive;
+            color: #222;
+            font-size: 1.8vh;
+            text-align: center;
+            position: absolute;
+            top: 15%;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+            z-index: 5;
+        }
+
+        .reel { width: 35%; aspect-ratio: 1/1; border: 2px solid #222; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: #000; }
+        .hub { width: 30%; height: 30%; background: #222; border: 2px dashed #444; border-radius: 50%; }
+        .spinning { animation: rotate 4s linear infinite; }
         @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        .lcd-screen { width: 82%; height: 16vh; background-color: var(--lcd-bg); margin: 10px auto; border: 4px solid #000; padding: 10px; box-sizing: border-box; display: flex; flex-direction: column; gap: 8px; color: var(--lcd-text); font-weight: bold; }
-        .lcd-top { display: flex; justify-content: space-between; font-size: 1.4vh; }
-        .lcd-mid { font-size: 1.1vh; overflow: hidden; white-space: nowrap; text-align: center; border-bottom: 1px solid var(--vdu-off); padding-bottom: 4px; }
-        .vdu-horizontal { display: flex; flex-direction: column; gap: 4px; width: 100%; }
-        .vdu-row { display: grid; grid-template-columns: 20px 1fr; align-items: center; gap: 8px; }
-        .vdu-label { font-size: 1vh; opacity: 0.8; }
-        .vdu-bars { display: flex; gap: 2px; height: 8px; }
-        .vdu-seg { flex: 1; background: var(--vdu-off); }
-        .lcd-progress-bg { width: 100%; height: 6px; background: var(--vdu-off); margin-top: auto; }
-        #lcd-progress-bar { width: 0%; height: 100%; background: var(--lcd-text); }
-        .dolby-switch-container { position: absolute; bottom: 10%; left: 5%; width: 30%; display: flex; flex-direction: column; align-items: center; gap: 5px; }
-        .dolby-label { color: #666; font-size: 0.8vh; font-weight: bold; }
-        #dolby-switch { width: 40px; height: 20px; background: #111; border: 1px solid #333; position: relative; cursor: pointer; }
-        .switch-handle { width: 50%; height: 100%; background: #444; position: absolute; left: 0; transition: left 0.1s ease; }
-        #dolby-switch.active .switch-handle { left: 50%; background: #555; }
-        .button-cluster { position: absolute; bottom: 4%; right: 5%; width: 55%; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .wm2-btn { background: #2a2a2a; border: 1px solid #000; color: #666; padding: 12px 0; font-size: 1vh; font-weight: bold; cursor: pointer; }
-        .wm2-btn:active { transform: translateY(1px); background: #1a1a1a; }
-        .play-btn { grid-column: span 2; background: #333; color: #eee; height: 7vh; font-size: 1.6vh;}
-        .load-btn { position: absolute; bottom: 4%; left: 5%; width: 30%; height: 5vh; background: #5e1919; color: #ccc; font-size: 1vh; font-weight: bold; border: none; cursor: pointer; }
-        .led { width: 8px; height: 8px; background: #1a0808; border-radius: 50%; }
+
+        /* Bottom Controls Container */
+        .controls-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 15px;
+            height: 40%;
+        }
+
+        /* LCD Design */
+        .lcd-screen {
+            background-color: var(--lcd-bg);
+            border: 3px solid #000;
+            padding: 8px;
+            font-family: 'Courier New', monospace;
+            color: var(--lcd-text);
+            font-size: 1.1vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .vdu-bars { display: flex; gap: 2px; height: 30px; align-items: flex-end; }
+        .vdu-seg { flex: 1; background: var(--vdu-off); width: 4px; }
+
+        /* Buttons Grid */
+        .button-zone {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .wm-btn {
+            background: #2a2a2a;
+            border: 1px solid #000;
+            box-shadow: inset 0 2px 2px #444, 0 2px 4px #000;
+            border-radius: 4px;
+            color: #888;
+            font-size: 1vh;
+            font-weight: bold;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .wm-btn:active { background: #1a1a1a; transform: translateY(2px); }
+        .play-btn { color: #eee; }
+
+        .led { width: 6px; height: 6px; border-radius: 50%; background: #300; margin-bottom: 4px; }
         .led-on { background: var(--orange-led); box-shadow: 0 0 8px var(--orange-led); }
+
+        .load-trigger { position: absolute; bottom: 5px; right: 20px; color: #444; font-size: 0.8vh; cursor: pointer; }
     </style>
 </head>
 <body>
 
     <div class="walkman-wm2">
-        <div class="top-deck">
-            <div class="logo-w">XR Audio Labs <span style="font-weight: 100; font-size: 1.3vh;">WM-1 Beta</span></div>
-            <div class="led" id="power-led"></div>
+        <div class="header">
+            <div class="logo-w">W. Walkman WM-2 Quartz</div>
+            <div class="sony-logo">SONY</div>
         </div>
+
         <div class="window-frame">
-            <div class="mixtape-sticker" id="mixtape-label">OFFLINE READY</div>
-            <div class="reels-wrapper">
-                <div class="reel-container"><div class="tape-mass" id="tape-l"></div><div class="reel-hub" id="hub-l"></div></div>
-                <div class="reel-container"><div class="tape-mass" id="tape-r"></div><div class="reel-hub" id="hub-r"></div></div>
+            <div class="mixtape-sticker" id="mixtape-label">INSERT TAPE</div>
+            <div class="reel"><div class="hub" id="hub-l"></div></div>
+            <div class="reel"><div class="hub" id="hub-r"></div></div>
+        </div>
+
+        <div class="controls-grid">
+            <div class="lcd-screen">
+                <div style="display:flex; justify-content: space-between;">
+                    <span id="lcd-index">TAPE --</span>
+                    <span id="lcd-time">00:00</span>
+                </div>
+                <div id="lcd-name" style="text-align: center; font-weight: bold; overflow: hidden; height: 1.2em;">READY...</div>
+                <div class="vdu-bars" id="vdu-l"></div>
+                <div style="height: 4px; background: rgba(0,0,0,0.1);"><div id="progress" style="height:100%; width:0%; background: #000;"></div></div>
+            </div>
+
+            <div class="button-zone">
+                <button class="wm-btn play-btn" id="play">
+                    <div class="led" id="power-led"></div>
+                    PLAY
+                </button>
+                <button class="wm-btn" id="stop">STOP</button>
+                <button class="wm-btn" id="prev">PREV</button>
+                <button class="wm-btn" id="next">NEXT</button>
             </div>
         </div>
-        <div class="lcd-screen">
-            <div class="lcd-top"><span id="lcd-index">TAPE --</span><span id="lcd-time">00:00</span></div>
-            <div class="lcd-mid" id="lcd-name">SELECT FOLDER</div>
-            <div class="vdu-horizontal" id="vdu-panel"></div>
-            <div class="lcd-progress-bg"><div id="lcd-progress-bar"></div></div>
-        </div>
-        <div class="dolby-switch-container">
-            <div class="dolby-label">DOLBY NR</div>
-            <div id="dolby-switch"><div class="switch-handle"></div></div>
-        </div>
-        <button class="load-btn" onclick="document.getElementById('dir-in').click()">EJECT / LOAD</button>
-        <div class="button-cluster">
-            <button class="wm2-btn play-btn" id="play">PLAY</button>
-            <button class="wm2-btn" id="stop">STOP</button>
-            <button class="wm2-btn" id="ff">FF/SPEED</button>
-            <button class="wm2-btn" id="prev">PREV</button>
-            <button class="wm2-btn" id="next">NEXT</button>
-        </div>
+
+        <div class="load-trigger" onclick="document.getElementById('dir-in').click()">EJECT / LOAD FOLDER</div>
     </div>
 
     <input type="file" id="dir-in" hidden webkitdirectory directory multiple>
-    <audio id="player" crossorigin="anonymous" preload="auto"></audio>
+    <audio id="player" crossorigin="anonymous"></audio>
 
     <script>
-        // --- 1. SERVICE WORKER REGISTRATION (Offline Capability) ---
+        // --- 1. Offline Service Worker ---
         if ('serviceWorker' in navigator) {
-            const swCode = `
-                const CACHE_NAME = 'walkman-cache-v1';
-                self.addEventListener('install', e => e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(['./']))));
-                self.addEventListener('fetch', e => e.respondWith(caches.match(e.request).then(r => r || fetch(e.request))));
-            `;
+            const swCode = `self.addEventListener('fetch', e => e.respondWith(caches.match(e.request).then(r => r || fetch(e.request))));`;
             const blob = new Blob([swCode], {type: 'application/javascript'});
             navigator.serviceWorker.register(URL.createObjectURL(blob));
         }
 
-        // --- 2. CORE LOGIC ---
+        // --- 2. Logic ---
         const player = document.getElementById('player');
-        const dirIn = document.getElementById('dir-in');
-        const led = document.getElementById('power-led');
         const hubs = [document.getElementById('hub-l'), document.getElementById('hub-r')];
-        const tapeL = document.getElementById('tape-l'), tapeR = document.getElementById('tape-r');
-        const lcdTime = document.getElementById('lcd-time'), lcdBar = document.getElementById('lcd-progress-bar');
-        const dolbySwitch = document.getElementById('dolby-switch'), mixtapeLabel = document.getElementById('mixtape-label');
-        
-        let audioCtx, analyser, dataArray, dolbyFilter, tracks = [], isDolbyOn = false;
+        let tracks = [], audioCtx, analyser, dataArray;
 
-        const vduPanel = document.getElementById('vdu-panel');
-        ['L','R'].forEach(label => {
-            const row = document.createElement('div'); row.className = 'vdu-row';
-            row.innerHTML = `<span class="vdu-label">${label}</span><div class="vdu-bars" id="vdu-${label.toLowerCase()}"></div>`;
-            vduPanel.appendChild(row);
-            const bars = row.querySelector('.vdu-bars');
-            for(let i=0; i<15; i++) bars.appendChild(document.createElement('div')).className = 'vdu-seg';
-        });
-
-        function updateTapeSize(percent) {
-            tapeL.style.width = tapeL.style.height = `${100 - (percent * 0.6)}%`;
-            tapeR.style.width = tapeR.style.height = `${40 + (percent * 0.6)}%`;
+        // Create VDU segments
+        const vdu = document.getElementById('vdu-l');
+        for(let i=0; i<15; i++) {
+            let seg = document.createElement('div');
+            seg.className = 'vdu-seg';
+            vdu.appendChild(seg);
         }
 
-        player.ontimeupdate = () => {
-            const m = Math.floor(player.currentTime / 60), s = Math.floor(player.currentTime % 60);
-            lcdTime.innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-            const percent = (player.currentTime / player.duration) || 0;
-            lcdBar.style.width = (percent * 100) + "%";
-            updateTapeSize(percent * 100);
-        };
-
-        function setupAudioNodes() {
-            if (audioCtx) return;
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            analyser = audioCtx.createAnalyser();
-            const source = audioCtx.createMediaElementSource(player);
-            dolbyFilter = audioCtx.createBiquadFilter();
-            dolbyFilter.type = "lowpass";
-            dolbyFilter.frequency.value = isDolbyOn ? 3000 : 20000;
-            source.connect(dolbyFilter); dolbyFilter.connect(analyser); analyser.connect(audioCtx.destination);
-            analyser.fftSize = 64; dataArray = new Uint8Array(analyser.frequencyBinCount);
-            draw();
-        }
-
-        function draw() {
-            requestAnimationFrame(draw);
-            if (!analyser || player.paused) return;
-            analyser.getByteFrequencyData(dataArray);
-            ['l','r'].forEach((id, idx) => {
-                const segs = document.getElementById(`vdu-${id}`).children;
-                const active = Math.floor((dataArray[idx*3+2] / 255) * 15);
-                for(let i=0; i<15; i++) segs[i].style.background = i < active ? 'var(--vdu-on)' : 'var(--vdu-off)';
-            });
-        }
-
-        // --- 3. iOS & BACKGROUND FIXES ---
-        function updateMediaSession() {
-            if ('mediaSession' in navigator && tracks.length > 0) {
-                navigator.mediaSession.metadata = new MediaMetadata({
-                    title: document.getElementById('lcd-name').innerText,
-                    artist: "Walkman WM-2", album: mixtapeLabel.innerText
-                });
-                navigator.mediaSession.setActionHandler('play', () => player.play());
-                navigator.mediaSession.setActionHandler('pause', () => document.getElementById('stop').click());
-                navigator.mediaSession.setActionHandler('previoustrack', () => document.getElementById('prev').click());
-                navigator.mediaSession.setActionHandler('nexttrack', () => document.getElementById('next').click());
-            }
-        }
-
-        dirIn.onchange = (e) => {
-            const files = Array.from(e.target.files).filter(f => f.type.startsWith('audio/'));
-            if(files.length > 0) {
-                tracks = files;
-                mixtapeLabel.innerText = (files[0].webkitRelativePath.split('/')[0] || "NEW MIX").toUpperCase();
+        document.getElementById('dir-in').onchange = (e) => {
+            tracks = Array.from(e.target.files).filter(f => f.type.startsWith('audio/'));
+            if(tracks.length > 0) {
+                document.getElementById('mixtape-label').innerText = (tracks[0].webkitRelativePath.split('/')[0] || "MY MIX").toUpperCase();
                 loadTrack(0);
             }
         };
@@ -184,48 +219,63 @@
             player.src = URL.createObjectURL(tracks[i]);
             document.getElementById('lcd-name').innerText = tracks[i].name;
             document.getElementById('lcd-index').innerText = `TAPE ${i+1}/${tracks.length}`;
-            updateTapeSize(0);
-            updateMediaSession();
+            if ('mediaSession' in navigator) {
+                navigator.mediaSession.metadata = new MediaMetadata({title: tracks[i].name, artist: "Walkman"});
+                navigator.mediaSession.setActionHandler('play', () => player.play());
+                navigator.mediaSession.setActionHandler('pause', () => player.pause());
+                navigator.mediaSession.setActionHandler('nexttrack', () => skip(1));
+                navigator.mediaSession.setActionHandler('previoustrack', () => skip(-1));
+            }
         }
 
         document.getElementById('play').onclick = async () => {
             if(!player.src) return;
-            if (!audioCtx) setupAudioNodes();
-            if (audioCtx.state === 'suspended') await audioCtx.resume();
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioCtx.createAnalyser();
+                audioCtx.createMediaElementSource(player).connect(analyser);
+                analyser.connect(audioCtx.destination);
+                analyser.fftSize = 64;
+                dataArray = new Uint8Array(analyser.frequencyBinCount);
+                renderVDU();
+            }
             player.play();
-            led.classList.add('led-on');
-            hubs.forEach(h => h.className = 'reel-hub spinning');
-            if ('mediaSession' in navigator) navigator.mediaSession.playbackState = "playing";
+            document.getElementById('power-led').classList.add('led-on');
+            hubs.forEach(h => h.classList.add('spinning'));
         };
 
         document.getElementById('stop').onclick = () => {
             player.pause();
-            player.currentTime = 0; // Robust Stop: ensures music actually stops & resets
-            led.classList.remove('led-on');
-            hubs.forEach(h => h.className = 'reel-hub');
-            if ('mediaSession' in navigator) navigator.mediaSession.playbackState = "paused";
+            player.currentTime = 0;
+            document.getElementById('power-led').classList.remove('led-on');
+            hubs.forEach(h => h.classList.remove('spinning'));
         };
 
-        // FF & Skipping
-        document.getElementById('ff').onclick = () => {
-            if(player.paused) return;
-            player.playbackRate = (player.playbackRate === 1.0) ? 4.0 : 1.0;
-            hubs.forEach(h => h.className = player.playbackRate > 1.0 ? 'reel-hub spinning-fast' : 'reel-hub spinning');
-        };
-
-        const skip = (dir) => {
+        function skip(dir) {
             let idx = tracks.findIndex(t => t.name === document.getElementById('lcd-name').innerText);
-            if (idx !== -1) { loadTrack((idx + dir + tracks.length) % tracks.length); player.play(); }
-        };
+            loadTrack((idx + dir + tracks.length) % tracks.length);
+            player.play();
+        }
+
         document.getElementById('next').onclick = () => skip(1);
         document.getElementById('prev').onclick = () => skip(-1);
-        player.onended = () => skip(1); // Auto-next works even with screen off
+        player.onended = () => skip(1);
 
-        dolbySwitch.onclick = () => {
-            isDolbyOn = !isDolbyOn;
-            dolbySwitch.classList.toggle('active');
-            if (dolbyFilter) dolbyFilter.frequency.setTargetAtTime(isDolbyOn ? 3000 : 20000, audioCtx.currentTime, 0.1);
+        player.ontimeupdate = () => {
+            const m = Math.floor(player.currentTime / 60), s = Math.floor(player.currentTime % 60);
+            document.getElementById('lcd-time').innerText = `${m}:${s.toString().padStart(2,'0')}`;
+            document.getElementById('progress').style.width = ((player.currentTime / player.duration) * 100) + "%";
         };
+
+        function renderVDU() {
+            requestAnimationFrame(renderVDU);
+            if (player.paused) return;
+            analyser.getByteFrequencyData(dataArray);
+            const segs = vdu.children;
+            for(let i=0; i<segs.length; i++) {
+                segs[i].style.background = i < (dataArray[i]/16) ? 'var(--vdu-on)' : 'var(--vdu-off)';
+            }
+        }
     </script>
 </body>
 </html>
