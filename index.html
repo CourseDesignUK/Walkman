@@ -3,16 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Walkman WM-2 Quartz Digital</title>
+    <title>Walkman WM-2 Dynamic Tape</title>
     <style>
         :root {
             --wm-body: #222222;
-            --wm-glass: rgba(0, 0, 0, 0.9);
+            --wm-glass: rgba(0, 0, 0, 0.95);
             --lcd-bg: #7bb552; 
             --lcd-text: #1a2e0e;
             --vdu-on: #1a2e0e;
             --vdu-off: rgba(26, 46, 14, 0.15);
             --orange-led: #ff4d00;
+            --tape-color: #1a1a1a;
         }
 
         body {
@@ -24,6 +25,7 @@
             margin: 0;
             font-family: 'Courier New', Courier, monospace;
             overflow: hidden;
+            user-select: none;
         }
 
         .walkman-wm2 {
@@ -63,20 +65,42 @@
             display: flex;
             justify-content: space-around;
             align-items: center;
-            box-shadow: inset 0 0 30px #000;
+            box-shadow: inset 0 0 40px #000;
+            overflow: hidden;
         }
 
-        .reel {
-            width: 25%;
+        /* Tape Reels */
+        .reel-container {
+            width: 35%;
             aspect-ratio: 1/1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .tape-mass {
+            position: absolute;
+            background: var(--tape-color);
+            border-radius: 50%;
+            border: 1px solid #333;
+            width: 100%; /* Dynamically controlled via JS */
+            height: 100%;
+            transition: width 0.5s linear, height 0.5s linear;
+        }
+
+        .reel-hub {
+            width: 35%;
+            height: 35%;
             background: #000;
             border-radius: 50%;
-            border: 2px dashed #333;
+            border: 2px dashed #444;
+            z-index: 2;
             display: flex;
             align-items: center;
             justify-content: center;
         }
-        .reel::after { content: ''; width: 20%; height: 20%; background: #111; transform: rotate(45deg); }
+        .reel-hub::after { content: ''; width: 30%; height: 30%; background: #222; transform: rotate(45deg); }
 
         .spinning { animation: rotate 3s linear infinite; }
         .spinning-fast { animation: rotate 0.6s linear infinite; }
@@ -96,78 +120,33 @@
             gap: 8px;
             color: var(--lcd-text);
             font-weight: bold;
-            box-shadow: inset 2px 2px 10px rgba(0,0,0,0.3);
         }
 
         .lcd-top { display: flex; justify-content: space-between; font-size: 1.4vh; }
-        .lcd-mid { font-size: 1.2vh; overflow: hidden; white-space: nowrap; text-align: center; border-bottom: 1px solid var(--vdu-off); padding-bottom: 4px; }
-
-        /* Horizontal VDU */
-        .vdu-horizontal {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            width: 100%;
-        }
-
-        .vdu-row {
-            display: grid;
-            grid-template-columns: 20px 1fr;
-            align-items: center;
-            gap: 8px;
-        }
-
+        .lcd-mid { font-size: 1.1vh; overflow: hidden; white-space: nowrap; text-align: center; border-bottom: 1px solid var(--vdu-off); padding-bottom: 4px; }
+        .vdu-horizontal { display: flex; flex-direction: column; gap: 4px; width: 100%; }
+        .vdu-row { display: grid; grid-template-columns: 20px 1fr; align-items: center; gap: 8px; }
         .vdu-label { font-size: 1vh; opacity: 0.8; }
-
-        .vdu-bars {
-            display: flex;
-            gap: 2px;
-            height: 8px;
-        }
-
-        .vdu-seg {
-            flex: 1;
-            background: var(--vdu-off);
-        }
-
+        .vdu-bars { display: flex; gap: 2px; height: 8px; }
+        .vdu-seg { flex: 1; background: var(--vdu-off); }
         .lcd-progress-bg { width: 100%; height: 6px; background: var(--vdu-off); margin-top: auto; }
         #lcd-progress-bar { width: 0%; height: 100%; background: var(--lcd-text); }
 
-        /* Controls */
         .button-cluster {
-            position: absolute;
-            bottom: 4%;
-            right: 5%;
-            width: 55%;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
+            position: absolute; bottom: 4%; right: 5%; width: 55%;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
         }
 
         .wm2-btn {
-            background: #2a2a2a;
-            border: 1px solid #000;
-            color: #666;
-            padding: 12px 0;
-            font-size: 1vh;
-            font-weight: bold;
-            cursor: pointer;
+            background: #2a2a2a; border: 1px solid #000; color: #666;
+            padding: 12px 0; font-size: 1vh; font-weight: bold; cursor: pointer;
         }
-        .wm2-btn:active { background: #333; }
+        .wm2-btn:active { transform: translateY(2px); background: #1a1a1a; }
         .play-btn { grid-column: span 2; background: #333; color: #eee; height: 7vh; font-size: 1.6vh;}
 
         .load-btn {
-            position: absolute;
-            bottom: 4%;
-            left: 5%;
-            width: 30%;
-            height: 5vh;
-            background: #5e1919;
-            color: #ccc;
-            font-size: 1vh;
-            font-weight: bold;
-            border: none;
-            cursor: pointer;
+            position: absolute; bottom: 4%; left: 5%; width: 30%; height: 5vh;
+            background: #5e1919; color: #ccc; font-size: 1vh; font-weight: bold; border: none; cursor: pointer;
         }
 
         .led { width: 8px; height: 8px; background: #1a0808; border-radius: 50%; }
@@ -178,13 +157,19 @@
 
     <div class="walkman-wm2">
         <div class="top-deck">
-            <div class="logo-w">XR Audio Labs<span style="font-weight: 100; font-size: 1.3vh;">WM-2 QUARTZ</span></div>
+            <div class="logo-w">SONY <span style="font-weight: 100; font-size: 1.3vh;">WM-2 QUARTZ</span></div>
             <div class="led" id="power-led"></div>
         </div>
 
         <div class="window-frame">
-            <div class="reel" id="reel-l"></div>
-            <div class="reel" id="reel-r"></div>
+            <div class="reel-container">
+                <div class="tape-mass" id="tape-l"></div>
+                <div class="reel-hub" id="hub-l"></div>
+            </div>
+            <div class="reel-container">
+                <div class="tape-mass" id="tape-r"></div>
+                <div class="reel-hub" id="hub-r"></div>
+            </div>
         </div>
 
         <div class="lcd-screen">
@@ -193,25 +178,11 @@
                 <span id="lcd-time">00:00</span>
             </div>
             <div class="lcd-mid" id="lcd-name">LOAD FOLDER</div>
-            
-            <div class="vdu-horizontal">
-                <div class="vdu-row">
-                    <span class="vdu-label">L</span>
-                    <div class="vdu-bars" id="vdu-l"></div>
-                </div>
-                <div class="vdu-row">
-                    <span class="vdu-label">R</span>
-                    <div class="vdu-bars" id="vdu-r"></div>
-                </div>
-            </div>
-
-            <div class="lcd-progress-bg">
-                <div id="lcd-progress-bar"></div>
-            </div>
+            <div class="vdu-horizontal" id="vdu-panel"></div>
+            <div class="lcd-progress-bg"><div id="lcd-progress-bar"></div></div>
         </div>
 
-        <button class="load-btn" onclick="document.getElementById('dir-in').click()">EJECT / LOAD</button>
-
+        <button class="load-btn" onclick="triggerLoad()">EJECT / LOAD</button>
         <div class="button-cluster">
             <button class="wm2-btn play-btn" id="play">PLAY</button>
             <button class="wm2-btn" id="stop">STOP</button>
@@ -228,161 +199,116 @@
         const player = document.getElementById('player');
         const dirIn = document.getElementById('dir-in');
         const led = document.getElementById('power-led');
-        const reels = document.querySelectorAll('.reel');
-        const lcdIndex = document.getElementById('lcd-index');
+        const hubs = [document.getElementById('hub-l'), document.getElementById('hub-r')];
+        const tapeL = document.getElementById('tape-l');
+        const tapeR = document.getElementById('tape-r');
         const lcdTime = document.getElementById('lcd-time');
-        const lcdName = document.getElementById('lcd-name');
         const lcdBar = document.getElementById('lcd-progress-bar');
         
+        let audioCtx, analyser, dataArray;
         let tracks = [];
-        let currentTrackIndex = 0;
-        let audioCtx, analyser, dataArray, source;
 
-        // Create horizontal segments
-        function createVDU(id) {
-            const meter = document.getElementById(id);
-            for(let i=0; i<15; i++) { // 15 segments for horizontal width
-                const seg = document.createElement('div');
-                seg.className = 'vdu-seg';
-                meter.appendChild(seg);
-            }
-        }
-        createVDU('vdu-l');
-        createVDU('vdu-r');
-
-        // Persistence
-        const dbName = "WalkmanDB";
-        const storeName = "TapeStore";
-
-        async function initDB() {
-            return new Promise(res => {
-                const req = indexedDB.open(dbName, 1);
-                req.onupgradeneeded = e => e.target.result.createObjectStore(storeName, { keyPath: "id" });
-                req.onsuccess = e => res(e.target.result);
-            });
+        function playClick() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'square';
+            osc.frequency.setValueAtTime(120, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.1);
+            gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.1);
         }
 
-        async function loadTapeFromDB() {
-            const db = await initDB();
-            const tx = db.transaction(storeName, "readonly");
-            const req = tx.objectStore(storeName).getAll();
-            req.onsuccess = () => {
-                if (req.result.length > 0) {
-                    tracks = req.result.map(item => item.data);
-                    loadTrack(0);
-                    lcdName.innerText = "TAPE READY";
-                }
-            };
+        // Initialize VDU
+        const vduPanel = document.getElementById('vdu-panel');
+        ['L','R'].forEach(label => {
+            const row = document.createElement('div');
+            row.className = 'vdu-row';
+            row.innerHTML = `<span class="vdu-label">${label}</span><div class="vdu-bars" id="vdu-${label.toLowerCase()}"></div>`;
+            vduPanel.appendChild(row);
+            const bars = row.querySelector('.vdu-bars');
+            for(let i=0; i<15; i++) bars.appendChild(document.createElement('div')).className = 'vdu-seg';
+        });
+
+        function updateTapeSize(percent) {
+            // Supply (Left) shrinks from 100% to 40%
+            const leftSize = 100 - (percent * 0.6);
+            // Take-up (Right) grows from 40% to 100%
+            const rightSize = 40 + (percent * 0.6);
+            
+            tapeL.style.width = tapeL.style.height = `${leftSize}%`;
+            tapeR.style.width = tapeR.style.height = `${rightSize}%`;
         }
-
-        function setupVisualizer() {
-            if (audioCtx) return;
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            analyser = audioCtx.createAnalyser();
-            source = audioCtx.createMediaElementSource(player);
-            source.connect(analyser);
-            analyser.connect(audioCtx.destination);
-            analyser.fftSize = 64;
-            dataArray = new Uint8Array(analyser.frequencyBinCount);
-            drawVDU();
-        }
-
-        function drawVDU() {
-            requestAnimationFrame(drawVDU);
-            if (!analyser || player.paused) {
-                resetVDU();
-                return;
-            }
-            analyser.getByteFrequencyData(dataArray);
-            updateMeter('vdu-l', dataArray[2]); 
-            updateMeter('vdu-r', dataArray[4]); 
-        }
-
-        function updateMeter(id, val) {
-            const segments = document.getElementById(id).children;
-            const activeCount = Math.floor((val / 255) * 15);
-            for(let i=0; i<15; i++) {
-                segments[i].style.background = i < activeCount ? 'var(--vdu-on)' : 'var(--vdu-off)';
-            }
-        }
-
-        function resetVDU() {
-            ['vdu-l', 'vdu-r'].forEach(id => {
-                const segments = document.getElementById(id).children;
-                for(let s of segments) s.style.background = 'var(--vdu-off)';
-            });
-        }
-
-        dirIn.onchange = async (e) => {
-            const files = Array.from(e.target.files).filter(f => f.type.startsWith('audio/'));
-            if(files.length > 0) {
-                tracks = files;
-                const db = await initDB();
-                const tx = db.transaction(storeName, "readwrite");
-                const store = tx.objectStore(storeName);
-                await store.clear();
-                files.forEach((f, i) => store.add({ id: i, name: f.name, data: f }));
-                loadTrack(0);
-            }
-        };
-
-        function loadTrack(i) {
-            if (!tracks[i]) return;
-            player.src = URL.createObjectURL(tracks[i]);
-            lcdName.innerText = tracks[i].name;
-            lcdIndex.innerText = `TAPE ${i + 1}/${tracks.length}`;
-        }
-
-        document.getElementById('play').onclick = () => {
-            if(!player.src) return;
-            setupVisualizer();
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            player.play();
-            led.classList.add('led-on');
-            updateReelClass('spinning');
-        };
-
-        document.getElementById('stop').onclick = () => {
-            player.pause();
-            led.classList.remove('led-on');
-            updateReelClass('');
-        };
-
-        document.getElementById('ff').onclick = () => {
-            if(player.paused) return;
-            player.playbackRate = (player.playbackRate === 1.0) ? 4.0 : 1.0;
-            updateReelClass(player.playbackRate > 1.0 ? 'spinning-fast' : 'spinning');
-        };
-
-        document.getElementById('next').onclick = () => {
-            if(!tracks.length) return;
-            currentTrackIndex = (currentTrackIndex + 1) % tracks.length;
-            loadTrack(currentTrackIndex);
-            document.getElementById('play').click();
-        };
-
-        document.getElementById('prev').onclick = () => {
-            if(!tracks.length) return;
-            currentTrackIndex = (currentTrackIndex - 1 + tracks.length) % tracks.length;
-            loadTrack(currentTrackIndex);
-            document.getElementById('play').click();
-        };
 
         player.ontimeupdate = () => {
             const m = Math.floor(player.currentTime / 60);
             const s = Math.floor(player.currentTime % 60);
             lcdTime.innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-            lcdBar.style.width = (player.currentTime / player.duration) * 100 + "%";
+            
+            const percent = (player.currentTime / player.duration) || 0;
+            lcdBar.style.width = (percent * 100) + "%";
+            updateTapeSize(percent * 100);
         };
 
-        function updateReelClass(cls) {
-            reels.forEach(r => {
-                r.classList.remove('spinning', 'spinning-fast');
-                if(cls) r.classList.add(cls);
+        function setupVisualizer() {
+            if (analyser) return;
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            analyser = audioCtx.createAnalyser();
+            const source = audioCtx.createMediaElementSource(player);
+            source.connect(analyser); analyser.connect(audioCtx.destination);
+            analyser.fftSize = 64;
+            dataArray = new Uint8Array(analyser.frequencyBinCount);
+            draw();
+        }
+
+        function draw() {
+            requestAnimationFrame(draw);
+            if (!analyser || player.paused) return;
+            analyser.getByteFrequencyData(dataArray);
+            ['l','r'].forEach((id, idx) => {
+                const segs = document.getElementById(`vdu-${id}`).children;
+                const active = Math.floor((dataArray[idx*3+2] / 255) * 15);
+                for(let i=0; i<15; i++) segs[i].style.background = i < active ? 'var(--vdu-on)' : 'var(--vdu-off)';
             });
         }
 
-        window.onload = loadTapeFromDB;
+        function triggerLoad() { playClick(); dirIn.click(); }
+
+        dirIn.onchange = async (e) => {
+            tracks = Array.from(e.target.files).filter(f => f.type.startsWith('audio/'));
+            if(tracks.length) loadTrack(0);
+        };
+
+        function loadTrack(i) {
+            player.src = URL.createObjectURL(tracks[i]);
+            document.getElementById('lcd-name').innerText = tracks[i].name;
+            document.getElementById('lcd-index').innerText = `TAPE ${i+1}/${tracks.length}`;
+            updateTapeSize(0);
+        }
+
+        document.getElementById('play').onclick = () => {
+            playClick(); if(!player.src) return;
+            setupVisualizer(); if (audioCtx.state === 'suspended') audioCtx.resume();
+            player.play();
+            led.classList.add('led-on');
+            hubs.forEach(h => h.className = 'reel-hub spinning');
+        };
+
+        document.getElementById('stop').onclick = () => {
+            playClick(); player.pause();
+            led.classList.remove('led-on');
+            hubs.forEach(h => h.className = 'reel-hub');
+        };
+
+        document.getElementById('ff').onclick = () => {
+            playClick(); if(player.paused) return;
+            player.playbackRate = (player.playbackRate === 1.0) ? 4.0 : 1.0;
+            hubs.forEach(h => h.className = player.playbackRate > 1.0 ? 'reel-hub spinning-fast' : 'reel-hub spinning');
+        };
+
+        document.getElementById('next').onclick = () => { playClick(); loadTrack((tracks.indexOf(tracks.find(t => URL.createObjectURL(t) === player.src)) + 1) % tracks.length); document.getElementById('play').click(); };
     </script>
 </body>
 </html>
