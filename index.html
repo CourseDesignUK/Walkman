@@ -16,7 +16,7 @@
             --vdu-off: rgba(26, 46, 14, 0.15);
             --orange-led: #ff4d00;
             --tape-color: #1a1a1a;
-            --label-bg: rgba(230, 226, 207, 0.85); /* Slightly transparent paper */
+            --label-bg: rgba(230, 226, 207, 0.85);
         }
 
         body {
@@ -58,7 +58,6 @@
 
         .logo-w { color: #888; font-weight: bold; font-size: 2.2vh; letter-spacing: -1px; font-family: sans-serif;}
 
-        /* Window Frame with Internal Sticker */
         .window-frame {
             width: 82%;
             height: 32%;
@@ -75,7 +74,6 @@
             position: relative;
         }
 
-        /* Straightened label inside the window */
         .mixtape-sticker {
             width: 85%;
             background: var(--label-bg);
@@ -91,7 +89,7 @@
             text-overflow: ellipsis;
             z-index: 10;
             position: absolute;
-            top: 15%; /* Positioned above the reel hubs */
+            top: 15%;
             border: 1px solid rgba(0,0,0,0.1);
         }
 
@@ -100,7 +98,7 @@
             display: flex;
             justify-content: space-around;
             align-items: center;
-            margin-top: 15%; /* Spacing below the label */
+            margin-top: 15%;
         }
 
         .reel-container {
@@ -139,7 +137,6 @@
         .spinning-fast { animation: rotate 0.6s linear infinite; }
         @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-        /* LCD Panel */
         .lcd-screen {
             width: 82%;
             height: 16vh;
@@ -166,7 +163,6 @@
         .lcd-progress-bg { width: 100%; height: 6px; background: var(--vdu-off); margin-top: auto; }
         #lcd-progress-bar { width: 0%; height: 100%; background: var(--lcd-text); }
 
-        /* Dolby Switch */
         .dolby-switch-container {
             position: absolute; bottom: 10%; left: 5%; width: 30%;
             display: flex; flex-direction: column; align-items: center; gap: 5px;
@@ -176,7 +172,6 @@
         .switch-handle { width: 50%; height: 100%; background: #444; position: absolute; left: 0; transition: left 0.1s ease; }
         #dolby-switch.active .switch-handle { left: 50%; background: #555; }
 
-        /* Buttons */
         .button-cluster {
             position: absolute; bottom: 4%; right: 5%; width: 55%;
             display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
@@ -310,6 +305,24 @@
             });
         }
 
+        // Media Session Metadata Update
+        function updateMediaSession() {
+            if ('mediaSession' in navigator && tracks.length > 0) {
+                const currentName = document.getElementById('lcd-name').innerText;
+                navigator.mediaSession.metadata = new MediaMetadata({
+                    title: currentName,
+                    artist: "XR Audio Labs",
+                    album: mixtapeLabel.innerText,
+                    artwork: [{ src: 'https://via.placeholder.com/512', sizes: '512x512', type: 'image/png' }]
+                });
+
+                navigator.mediaSession.setActionHandler('play', () => document.getElementById('play').click());
+                navigator.mediaSession.setActionHandler('pause', () => document.getElementById('stop').click());
+                navigator.mediaSession.setActionHandler('previoustrack', () => document.getElementById('prev').click());
+                navigator.mediaSession.setActionHandler('nexttrack', () => document.getElementById('next').click());
+            }
+        }
+
         dirIn.onchange = async (e) => {
             const files = Array.from(e.target.files).filter(f => f.type.startsWith('audio/'));
             if(files.length > 0) {
@@ -325,6 +338,7 @@
             document.getElementById('lcd-name').innerText = tracks[i].name;
             document.getElementById('lcd-index').innerText = `TAPE ${i+1}/${tracks.length}`;
             updateTapeSize(0);
+            updateMediaSession();
         }
 
         dolbySwitch.onclick = () => {
@@ -344,12 +358,20 @@
             player.play();
             led.classList.add('led-on');
             hubs.forEach(h => h.className = 'reel-hub spinning');
+            if ('mediaSession' in navigator) navigator.mediaSession.playbackState = "playing";
         };
 
         document.getElementById('stop').onclick = () => {
             player.pause();
+            player.currentTime = 0; // Hard stop resets track
             led.classList.remove('led-on');
             hubs.forEach(h => h.className = 'reel-hub');
+            if ('mediaSession' in navigator) navigator.mediaSession.playbackState = "paused";
+            // Clear VDU bars on stop
+            ['l','r'].forEach((id) => {
+                const segs = document.getElementById(`vdu-${id}`).children;
+                for(let i=0; i<15; i++) segs[i].style.background = 'var(--vdu-off)';
+            });
         };
 
         document.getElementById('ff').onclick = () => {
@@ -366,6 +388,11 @@
         document.getElementById('prev').onclick = () => { 
             let idx = tracks.findIndex(t => t.name === document.getElementById('lcd-name').innerText);
             if (idx !== -1) { loadTrack((idx - 1 + tracks.length) % tracks.length); document.getElementById('play').click(); }
+        };
+
+        // Ensure background behavior when track ends
+        player.onended = () => {
+            document.getElementById('next').click();
         };
     </script>
 </body>
