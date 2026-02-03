@@ -3,19 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Walkman WM-2 Quartz</title>
+    <title>Walkman WM-2 Quartz + Hiss</title>
     <style>
         :root {
             --wm-metallic: #2d3436;
-            --wm-silver: #7f8c8d;
-            --wm-glass: rgba(10, 10, 15, 0.9);
+            --wm-silver: #b2bec3;
+            --wm-glass: rgba(10, 10, 15, 0.95);
             --lcd-bg: #7bb552; 
-            --lcd-text: #243b12;
+            --lcd-text: #1a2e0e;
             --orange-led: #ff4d00;
         }
 
         body {
-            background-color: #121212;
+            background-color: #0a0a0a;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -28,130 +28,142 @@
         .walkman-wm2 {
             height: 92vh;
             width: 95vw;
-            max-width: 450px;
+            max-width: 420px;
             aspect-ratio: 10 / 16;
-            background-color: var(--wm-metallic);
-            border-radius: 15px;
+            background: linear-gradient(135deg, #2d3436 0%, #1e272e 100%);
+            border-radius: 20px;
             position: relative;
-            box-shadow: 0 50px 100px rgba(0,0,0,0.9), inset 0 0 15px rgba(255,255,255,0.05);
-            border: 1px solid #111;
+            box-shadow: 0 50px 100px rgba(0,0,0,0.9), inset 0 2px 5px rgba(255,255,255,0.1);
+            border: 2px solid #111;
             display: flex;
             flex-direction: column;
-            margin: auto;
+            padding: 10px;
+            box-sizing: border-box;
         }
 
         .top-deck {
-            height: 12%;
-            background: linear-gradient(180deg, #4d4d4d, #222);
-            border-bottom: 3px solid #111;
+            height: 10%;
             display: flex;
             align-items: center;
-            padding: 0 20px;
+            padding: 0 15px;
             justify-content: space-between;
+            border-bottom: 2px solid #222;
         }
 
-        .logo-w { color: #eee; font-weight: bold; font-size: 2.5vh; letter-spacing: -1px; font-family: sans-serif;}
+        .logo-w { color: #fff; font-weight: bold; font-size: 2.2vh; letter-spacing: -1px; font-family: Arial, sans-serif;}
 
         .window-frame {
-            width: 80%;
-            height: 35%;
+            width: 90%;
+            height: 30%;
             background: var(--wm-glass);
-            margin: 20px auto 5px auto;
-            border: 6px solid #151515;
-            border-radius: 4px;
+            margin: 15px auto;
+            border: 8px solid #1a1a1a;
+            border-radius: 8px;
             display: flex;
             justify-content: space-around;
             align-items: center;
-            box-shadow: inset 0 0 50px black;
+            position: relative;
+            box-shadow: inset 0 0 40px #000;
+            overflow: hidden;
+        }
+
+        /* The magnetic tape effect */
+        .window-frame::after {
+            content: '';
+            position: absolute;
+            width: 70%;
+            height: 12px;
+            background: #1a1410;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 1;
+            opacity: 0.8;
         }
 
         .reel {
-            width: 28%;
+            width: 30%;
             aspect-ratio: 1/1;
             background: #000;
             border-radius: 50%;
-            border: 4px dashed #222;
+            border: 4px dashed #333;
             display: flex;
             align-items: center;
             justify-content: center;
+            position: relative;
+            z-index: 2;
         }
-        .reel::after { content: ''; width: 25%; height: 25%; background: #1a1a1a; transform: rotate(45deg); }
+        .reel::after { content: ''; width: 30%; height: 30%; background: #444; border-radius: 2px; transform: rotate(45deg); }
 
-        .spinning { animation: rotate 3s linear infinite; }
-        .spinning-fast { animation: rotate 0.5s linear infinite; }
+        .spinning { animation: rotate 2.5s linear infinite; }
+        .spinning-fast { animation: rotate 0.4s linear infinite; }
         @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
         .lcd-screen {
-            width: 80%;
+            width: 90%;
             height: 8vh;
             background-color: var(--lcd-bg);
-            margin: 10px auto;
+            margin: 0 auto 20px auto;
             border: 4px solid #111;
-            border-radius: 3px;
-            box-shadow: inset 2px 2px 10px rgba(0,0,0,0.5);
-            padding: 8px;
+            border-radius: 2px;
+            box-shadow: inset 3px 3px 10px rgba(0,0,0,0.4);
+            padding: 10px;
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             color: var(--lcd-text);
-            font-weight: bold;
-            text-transform: uppercase;
         }
 
-        .lcd-top { display: flex; justify-content: space-between; font-size: 1.4vh; }
-        .lcd-mid { font-size: 1.1vh; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; text-align: center; }
+        .lcd-top { display: flex; justify-content: space-between; font-size: 1.5vh; font-weight: 900; }
+        .lcd-mid { font-size: 1.2vh; overflow: hidden; white-space: nowrap; text-align: center; border-top: 1px solid rgba(0,0,0,0.1); padding-top: 2px; }
         
-        .lcd-progress-bg { width: 100%; height: 6px; background: rgba(0,0,0,0.1); border: 1px solid var(--lcd-text); }
+        .lcd-progress-bg { width: 100%; height: 4px; background: rgba(0,0,0,0.1); }
         #lcd-progress-bar { width: 0%; height: 100%; background: var(--lcd-text); }
 
         .button-cluster {
-            position: absolute;
-            bottom: 4%;
-            right: 5%;
-            width: 55%;
+            margin-top: auto;
+            padding: 10px;
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
         }
 
         .wm2-btn {
-            background: #333;
-            border: 1px solid #111;
-            color: #888;
+            background: linear-gradient(180deg, #444, #222);
+            border: 1px solid #000;
+            color: #aaa;
             padding: 12px 5px;
             font-size: 1vh;
             font-weight: bold;
             cursor: pointer;
-            box-shadow: 3px 3px 0 #111;
+            box-shadow: 0 4px 0 #000;
+            border-radius: 4px;
         }
-        .wm2-btn:active { transform: translate(2px, 2px); box-shadow: 0 0 0; }
-        .play-btn { grid-column: span 2; background: #3d3d3d; color: #fff; height: 7vh; font-size: 1.6vh; }
+        .wm2-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #000; color: #fff; }
+        .play-btn { grid-column: span 3; background: linear-gradient(180deg, #555, #333); color: #fff; height: 8vh; font-size: 2vh; margin-bottom: 5px; }
 
         .load-btn {
             position: absolute;
-            bottom: 4%;
-            left: 5%;
-            width: 30%;
-            height: 5vh;
+            top: 45%;
+            left: -15px;
+            width: 40px;
+            height: 80px;
             background: #a52a2a;
-            color: white;
-            font-size: 1vh;
-            font-weight: bold;
-            border: none;
+            border-radius: 5px;
+            border: 1px solid #000;
             cursor: pointer;
-            box-shadow: 2px 2px 0 #4e1111;
+            z-index: 10;
         }
 
-        .led { width: 10px; height: 10px; background: #300; border-radius: 50%; }
-        .led-on { background: var(--orange-led); box-shadow: 0 0 10px var(--orange-led); }
+        .led { width: 12px; height: 12px; background: #300; border-radius: 50%; border: 2px solid #111; }
+        .led-on { background: var(--orange-led); box-shadow: 0 0 12px var(--orange-led); }
     </style>
 </head>
 <body>
 
     <div class="walkman-wm2">
         <div class="top-deck">
-            <div class="logo-w">SONY <span style="font-weight: 100; font-size: 1.4vh;">WM-2</span></div>
+            <div class="logo-w">SONY <span style="font-weight: 100; font-size: 1.5vh; opacity: 0.7;">WM-2 QUARTZ</span></div>
             <div class="led" id="power-led"></div>
         </div>
 
@@ -162,24 +174,24 @@
 
         <div class="lcd-screen">
             <div class="lcd-top">
-                <span id="lcd-index">TAPE --</span>
+                <span id="lcd-index">NO TAPE</span>
                 <span id="lcd-time">00:00</span>
             </div>
-            <div class="lcd-mid" id="lcd-name">LOAD Tape TO START</div>
+            <div class="lcd-mid" id="lcd-name">PRESS EJECT TO LOAD</div>
             <div class="lcd-progress-bg">
                 <div id="lcd-progress-bar"></div>
             </div>
         </div>
 
-        <button class="load-btn" onclick="document.getElementById('dir-in').click()">EJECT / LOAD</button>
-
         <div class="button-cluster">
-            <button class="wm2-btn play-btn" id="play">PLAY</button>
-            <button class="wm2-btn" id="stop">STOP</button>
-            <button class="wm2-btn" id="ff">FFWD</button>
-            <button class="wm2-btn" id="prev">PREV</button>
-            <button class="wm2-btn" id="next">NEXT</button>
+            <button class="wm2-btn play-btn" id="play">▶ PLAY</button>
+            <button class="wm2-btn" id="stop">■ STOP</button>
+            <button class="wm2-btn" id="prev">|◀◀</button>
+            <button class="wm2-btn" id="next">▶▶|</button>
+            <button class="wm2-btn" id="ff" style="grid-column: span 3; opacity: 0.6;">4x SPEED TOGGLE</button>
         </div>
+
+        <button class="load-btn" onclick="document.getElementById('dir-in').click()" title="Eject/Load"></button>
     </div>
 
     <input type="file" id="dir-in" hidden webkitdirectory directory multiple>
@@ -198,83 +210,90 @@
         let tracks = []; 
         let currentTrackIndex = 0;
 
-        // --- INDEXED DB LOGIC (Persistence) ---
-        const dbName = "WalkmanDB";
-        const storeName = "TapeStore";
+        // --- TAPE HISS GENERATOR (Web Audio API) ---
+        let audioCtx, hissNode, hissGain;
 
-        function initDB() {
-            return new Promise((resolve) => {
-                const request = indexedDB.open(dbName, 1);
-                request.onupgradeneeded = (e) => {
-                    e.target.result.createObjectStore(storeName, { keyPath: "id" });
-                };
-                request.onsuccess = (e) => resolve(e.target.result);
-            });
-        }
-
-        async function saveTape(files) {
-            const db = await initDB();
-            const tx = db.transaction(storeName, "readwrite");
-            const store = tx.objectStore(storeName);
-            await store.clear();
+        function initHiss() {
+            if (audioCtx) return;
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const bufferSize = 2 * audioCtx.sampleRate,
+                noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate),
+                output = noiseBuffer.getChannelData(0);
             
-            // Map files to storeable objects
-            const list = files.map((f, i) => ({ id: i, name: f.name, data: f }));
-            list.forEach(item => store.add(item));
+            for (let i = 0; i < bufferSize; i++) {
+                output[i] = Math.random() * 2 - 1;
+            }
+
+            hissNode = audioCtx.createBufferSource();
+            hissNode.buffer = noiseBuffer;
+            hissNode.loop = true;
+
+            hissGain = audioCtx.createGain();
+            hissGain.gain.value = 0; // Start silent
+
+            // High shelf filter to make it sound like tape hiss rather than harsh static
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = "highshelf";
+            filter.frequency.value = 8000;
+            filter.gain.value = -10;
+
+            hissNode.connect(filter);
+            filter.connect(hissGain);
+            hissGain.connect(audioCtx.destination);
+            hissNode.start();
         }
 
-        async function loadTapeFromDB() {
-            const db = await initDB();
-            const tx = db.transaction(storeName, "readonly");
-            const store = tx.objectStore(storeName);
-            const request = store.getAll();
-            request.onsuccess = () => {
-                if (request.result.length > 0) {
-                    tracks = request.result.map(item => item.data);
-                    loadTrack(0);
-                    lcdName.innerText = "TAPE RESTORED";
-                }
-            };
+        function setHiss(volume, ramp = 0.1) {
+            if (hissGain) {
+                hissGain.gain.linearRampToValueAtTime(volume, audioCtx.currentTime + ramp);
+            }
         }
 
-        // --- APP LOGIC ---
+        // --- CORE LOGIC ---
         dirIn.onchange = async (e) => {
-            const files = Array.from(e.target.files).filter(f => f.type.startsWith('audio/') || f.name.endsWith('.wav') || f.name.endsWith('.mp3'));
+            const files = Array.from(e.target.files).filter(f => f.type.startsWith('audio/') || f.name.endsWith('.mp3'));
             if(files.length > 0) {
                 tracks = files;
                 currentTrackIndex = 0;
-                await saveTape(files);
                 loadTrack(0);
             }
         };
 
         function loadTrack(i) {
             if (!tracks[i]) return;
+            if (player.src) URL.revokeObjectURL(player.src); // Memory Cleanup
+            
             const url = URL.createObjectURL(tracks[i]);
             player.src = url;
-            lcdName.innerText = tracks[i].name;
+            lcdName.innerText = tracks[i].name.toUpperCase();
             lcdIndex.innerText = `TAPE ${i + 1}/${tracks.length}`;
             lcdBar.style.width = "0%";
         }
 
         document.getElementById('play').onclick = () => {
             if(!player.src) return;
+            initHiss();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            
             player.playbackRate = 1.0;
             player.play();
             led.classList.add('led-on');
             updateReelClass('spinning');
+            setHiss(0.015); // Subtle hiss
         };
 
         document.getElementById('stop').onclick = () => {
             player.pause();
             led.classList.remove('led-on');
             updateReelClass('');
+            setHiss(0, 0.05); // Cut hiss
         };
 
         document.getElementById('ff').onclick = () => {
             if(player.paused) return;
             player.playbackRate = (player.playbackRate === 1.0) ? 4.0 : 1.0;
             updateReelClass(player.playbackRate > 1.0 ? 'spinning-fast' : 'spinning');
+            setHiss(player.playbackRate > 1.0 ? 0.04 : 0.015); // Louder hiss when FF
         };
 
         document.getElementById('next').onclick = () => {
@@ -307,9 +326,6 @@
                 if(cls) r.classList.add(cls);
             });
         }
-
-        // Initialize on load
-        window.onload = loadTapeFromDB;
     </script>
 </body>
 </html>
