@@ -9,7 +9,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="audio.png">
 
-    <title>Walkman WM-2 Quartz</title>
+    <title>XR Audio Pro</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
         :root {
@@ -59,11 +59,11 @@
 
     <div class="walkman-wm2">
         <div class="top-deck">
-            <div class="logo-w">XR Audio Labs <span style="font-weight: 100; font-size: 1.3vh;">WM-1 QUARTZ</span></div>
+            <div class="logo-w">XR Audio Labs <span style="font-weight: 100; font-size: 1.3vh;">WM-2 QUARTZ</span></div>
             <div class="led" id="power-led"></div>
         </div>
         <div class="window-frame">
-            <div class="mixtape-sticker" id="mixtape-label">IOS READY</div>
+            <div class="mixtape-sticker" id="mixtape-label">NO TAPE</div>
             <div class="reels-wrapper">
                 <div class="reel-container"><div class="tape-mass" id="tape-l"></div><div class="reel-hub" id="hub-l"></div></div>
                 <div class="reel-container"><div class="tape-mass" id="tape-r"></div><div class="reel-hub" id="hub-r"></div></div>
@@ -90,7 +90,7 @@
     </div>
 
     <input type="file" id="dir-in" hidden webkitdirectory directory multiple>
-    <audio id="player" crossorigin="anonymous"></audio>
+    <audio id="player" crossorigin="anonymous" preload="auto"></audio>
 
     <script>
         const player = document.getElementById('player');
@@ -125,15 +125,20 @@
             updateTapeSize(percent * 100);
         };
 
-        // --- THE iOS BACKGROUND FIX ---
-        // This tricks Safari into thinking we are a "Live Stream" which prevents suspension.
+        // --- ENHANCED iOS BACKGROUND FIX ---
         function setupAudioNodes() {
             if (audioCtx) return;
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            analyser = audioCtx.createAnalyser();
             
-            // Hack: Route through MediaStream to fool the background process reaper
-            const dest = audioCtx.createMediaStreamDestination();
+            // 1. Silent Loop Trick: Keeps the audio hardware active when the OS tries to sleep
+            const oscillator = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            gain.gain.value = 0.001; // Inaudible
+            oscillator.connect(gain);
+            gain.connect(audioCtx.destination);
+            oscillator.start();
+
+            analyser = audioCtx.createAnalyser();
             const source = audioCtx.createMediaElementSource(player);
             
             dolbyFilter = audioCtx.createBiquadFilter();
@@ -164,10 +169,10 @@
             if ('mediaSession' in navigator && tracks.length > 0) {
                 const currentName = document.getElementById('lcd-name').innerText;
                 navigator.mediaSession.metadata = new MediaMetadata({
-                    title: currentName, artist: "Walkman", album: mixtapeLabel.innerText,
+                    title: currentName, artist: "XR Audio Labs", album: mixtapeLabel.innerText,
                     artwork: [{ src: 'audio.png', sizes: '512x512', type: 'image/png' }]
                 });
-                navigator.mediaSession.setActionHandler('play', () => player.play());
+                navigator.mediaSession.setActionHandler('play', () => document.getElementById('play').click());
                 navigator.mediaSession.setActionHandler('pause', () => document.getElementById('stop').click());
                 navigator.mediaSession.setActionHandler('previoustrack', () => skip(-1));
                 navigator.mediaSession.setActionHandler('nexttrack', () => skip(1));
@@ -177,8 +182,10 @@
         document.getElementById('dir-in').onchange = (e) => {
             tracks = Array.from(e.target.files).filter(f => f.type.startsWith('audio/'));
             if(tracks.length > 0) {
-                mixtapeLabel.innerText = (tracks[0].webkitRelativePath.split('/')[0] || "MY MIX").toUpperCase();
+                mixtapeLabel.innerText = (tracks[0].webkitRelativePath.split('/')[0] || "LOADED TAPE").toUpperCase();
                 loadTrack(0);
+                // "Load up on opening" - simulate play to trigger context if possible
+                document.getElementById('play').click();
             }
         };
 
@@ -195,15 +202,15 @@
             if (!audioCtx) setupAudioNodes();
             if (audioCtx.state === 'suspended') await audioCtx.resume();
             
-            player.play().catch(e => console.log("Play blocked: ", e));
-            led.classList.add('led-on');
-            hubs.forEach(h => h.className = 'reel-hub spinning');
-            if ('mediaSession' in navigator) navigator.mediaSession.playbackState = "playing";
+            player.play().then(() => {
+                led.classList.add('led-on');
+                hubs.forEach(h => h.className = 'reel-hub spinning');
+                if ('mediaSession' in navigator) navigator.mediaSession.playbackState = "playing";
+            }).catch(e => console.log("Play blocked: ", e));
         };
 
         document.getElementById('stop').onclick = () => {
             player.pause();
-            player.currentTime = 0;
             led.classList.remove('led-on');
             hubs.forEach(h => h.className = 'reel-hub');
             if ('mediaSession' in navigator) navigator.mediaSession.playbackState = "paused";
@@ -213,7 +220,7 @@
             let idx = tracks.findIndex(t => t.name === document.getElementById('lcd-name').innerText);
             if (idx !== -1) {
                 loadTrack((idx + dir + tracks.length) % tracks.length);
-                player.play();
+                document.getElementById('play').click();
             }
         };
 
@@ -227,7 +234,13 @@
             hubs.forEach(h => h.className = player.playbackRate > 1.0 ? 'reel-hub spinning-fast' : 'reel-hub spinning');
         };
 
-        // Important for iOS: Service Worker for offline
+        // iOS Visibility Fix
+        document.addEventListener("visibilitychange", () => {
+            if (document.visibilityState === "visible" && !player.paused) {
+                if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+            }
+        });
+
         if ('serviceWorker' in navigator) {
             const swCode = `self.addEventListener('fetch', e => e.respondWith(caches.match(e.request).then(r => r || fetch(e.request))));`;
             const blob = new Blob([swCode], {type: 'application/javascript'});
