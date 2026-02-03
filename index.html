@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Walkman WM-2 Mix Tape</title>
+    <title>Walkman WM-2 Quartz</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
 
@@ -16,6 +16,7 @@
             --vdu-off: rgba(26, 46, 14, 0.15);
             --orange-led: #ff4d00;
             --tape-color: #1a1a1a;
+            --label-bg: rgba(230, 226, 207, 0.85); /* Slightly transparent paper */
         }
 
         body {
@@ -57,44 +58,53 @@
 
         .logo-w { color: #888; font-weight: bold; font-size: 2.2vh; letter-spacing: -1px; font-family: sans-serif;}
 
-        /* Mixtape Sticker */
-        .mixtape-sticker {
-            width: 70%;
-            background: #e6e2cf; /* Off-white paper color */
-            margin: 15px auto 0 auto;
-            padding: 5px 10px;
-            font-family: 'Permanent Marker', cursive;
-            color: #1a1a1a;
-            font-size: 1.8vh;
-            text-align: center;
-            box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
-            transform: rotate(-1.5deg); /* Slight organic tilt */
-            border-radius: 2px;
-            border-left: 2px solid rgba(0,0,0,0.1);
-            border-top: 1px solid rgba(255,255,255,0.2);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            z-index: 5;
-        }
-
+        /* Window Frame with Internal Sticker */
         .window-frame {
             width: 82%;
             height: 32%;
             background: var(--wm-glass);
-            margin: 5px auto 10px auto;
+            margin: 20px auto 10px auto;
             border: 4px solid #111;
             border-radius: 2px;
             display: flex;
-            justify-content: space-around;
+            flex-direction: column;
+            justify-content: center;
             align-items: center;
             box-shadow: inset 0 0 40px #000;
             overflow: hidden;
             position: relative;
         }
 
+        /* Straightened label inside the window */
+        .mixtape-sticker {
+            width: 85%;
+            background: var(--label-bg);
+            padding: 4px 0;
+            font-family: 'Permanent Marker', cursive;
+            color: #222;
+            font-size: 1.6vh;
+            text-align: center;
+            border-radius: 1px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            z-index: 10;
+            position: absolute;
+            top: 15%; /* Positioned above the reel hubs */
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .reels-wrapper {
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin-top: 15%; /* Spacing below the label */
+        }
+
         .reel-container {
-            width: 35%;
+            width: 32%;
             aspect-ratio: 1/1;
             display: flex;
             align-items: center;
@@ -184,20 +194,21 @@
 
     <div class="walkman-wm2">
         <div class="top-deck">
-            <div class="logo-w">XR Audio Labs <span style="font-weight: 100; font-size: 1.3vh;">WM-2 QUARTZ</span></div>
+            <div class="logo-w">SONY <span style="font-weight: 100; font-size: 1.3vh;">WM-2 QUARTZ</span></div>
             <div class="led" id="power-led"></div>
         </div>
 
-        <div class="mixtape-sticker" id="mixtape-label">MY MIX TAPE</div>
-
         <div class="window-frame">
-            <div class="reel-container">
-                <div class="tape-mass" id="tape-l"></div>
-                <div class="reel-hub" id="hub-l"></div>
-            </div>
-            <div class="reel-container">
-                <div class="tape-mass" id="tape-r"></div>
-                <div class="reel-hub" id="hub-r"></div>
+            <div class="mixtape-sticker" id="mixtape-label">INSERT TAPE</div>
+            <div class="reels-wrapper">
+                <div class="reel-container">
+                    <div class="tape-mass" id="tape-l"></div>
+                    <div class="reel-hub" id="hub-l"></div>
+                </div>
+                <div class="reel-container">
+                    <div class="tape-mass" id="tape-r"></div>
+                    <div class="reel-hub" id="hub-r"></div>
+                </div>
             </div>
         </div>
 
@@ -303,8 +314,7 @@
             const files = Array.from(e.target.files).filter(f => f.type.startsWith('audio/'));
             if(files.length > 0) {
                 tracks = files;
-                // Get folder name from the first file path
-                const folderName = files[0].webkitRelativePath.split('/')[0] || "MY MIX TAPE";
+                const folderName = files[0].webkitRelativePath.split('/')[0] || "NEW MIX";
                 mixtapeLabel.innerText = folderName.toUpperCase();
                 loadTrack(0);
             }
