@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Walkman WM-2 Quartz Refined</title>
+    <title>Walkman WM-2 Quartz</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
 
@@ -16,7 +16,7 @@
             --vdu-off: rgba(26, 46, 14, 0.15);
             --orange-led: #ff4d00;
             --tape-color: #1a1a1a;
-            --label-bg: rgba(230, 226, 207, 0.85);
+            --label-bg: rgba(230, 226, 207, 0.85); /* Slightly transparent paper */
         }
 
         body {
@@ -58,7 +58,7 @@
 
         .logo-w { color: #888; font-weight: bold; font-size: 2.2vh; letter-spacing: -1px; font-family: sans-serif;}
 
-        /* Window Frame */
+        /* Window Frame with Internal Sticker */
         .window-frame {
             width: 82%;
             height: 32%;
@@ -68,22 +68,14 @@
             border-radius: 2px;
             display: flex;
             flex-direction: column;
-            justify-content: flex-start;
+            justify-content: center;
             align-items: center;
             box-shadow: inset 0 0 40px #000;
             overflow: hidden;
             position: relative;
         }
 
-        .reels-wrapper {
-            width: 100%;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            margin-top: 15%;
-        }
-
-        /* Sticker moved near bottom of window */
+        /* Straightened label inside the window */
         .mixtape-sticker {
             width: 85%;
             background: var(--label-bg);
@@ -93,14 +85,22 @@
             font-size: 1.6vh;
             text-align: center;
             border-radius: 1px;
-            box-shadow: 0 -2px 4px rgba(0,0,0,0.3);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
             z-index: 10;
             position: absolute;
-            bottom: 10%; 
+            top: 15%; /* Positioned above the reel hubs */
             border: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .reels-wrapper {
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin-top: 15%; /* Spacing below the label */
         }
 
         .reel-container {
@@ -166,29 +166,24 @@
         .lcd-progress-bg { width: 100%; height: 6px; background: var(--vdu-off); margin-top: auto; }
         #lcd-progress-bar { width: 0%; height: 100%; background: var(--lcd-text); }
 
-        /* Dolby Toggle Switch */
+        /* Dolby Switch */
         .dolby-switch-container {
-            position: absolute; bottom: 10.5%; left: 5%; width: 30%;
+            position: absolute; bottom: 10%; left: 5%; width: 30%;
             display: flex; flex-direction: column; align-items: center; gap: 5px;
         }
         .dolby-label { color: #666; font-size: 0.8vh; font-weight: bold; }
         #dolby-switch { width: 40px; height: 20px; background: #111; border: 1px solid #333; position: relative; cursor: pointer; }
         .switch-handle { width: 50%; height: 100%; background: #444; position: absolute; left: 0; transition: left 0.1s ease; }
-        
-        /* Dolby Orange On State */
-        #dolby-switch.active { background: #5a3000; border-color: var(--orange-led); }
-        #dolby-switch.active .switch-handle { left: 50%; background: var(--orange-led); box-shadow: 0 0 8px var(--orange-led); }
+        #dolby-switch.active .switch-handle { left: 50%; background: #555; }
 
-        /* Control Buttons */
+        /* Buttons */
         .button-cluster {
             position: absolute; bottom: 4%; right: 5%; width: 55%;
             display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
         }
-        .wm2-btn { background: #2a2a2a; border: 1px solid #000; color: #666; padding: 12px 0; font-size: 1vh; font-weight: bold; cursor: pointer; height: 5vh; box-sizing: border-box; }
+        .wm2-btn { background: #2a2a2a; border: 1px solid #000; color: #666; padding: 12px 0; font-size: 1vh; font-weight: bold; cursor: pointer; }
         .wm2-btn:active { transform: translateY(1px); background: #1a1a1a; }
         .play-btn { grid-column: span 2; background: #333; color: #eee; height: 7vh; font-size: 1.6vh;}
-        
-        /* Eject Match Height */
         .load-btn { position: absolute; bottom: 4%; left: 5%; width: 30%; height: 5vh; background: #5e1919; color: #ccc; font-size: 1vh; font-weight: bold; border: none; cursor: pointer; }
 
         .led { width: 8px; height: 8px; background: #1a0808; border-radius: 50%; }
@@ -199,11 +194,12 @@
 
     <div class="walkman-wm2">
         <div class="top-deck">
-            <div class="logo-w">SONY <span style="font-weight: 100; font-size: 1.3vh;">WM-2 QUARTZ</span></div>
+            <div class="logo-w">XR Audio Labs <span style="font-weight: 100; font-size: 1.3vh;">WM-1 QUARTZ</span></div>
             <div class="led" id="power-led"></div>
         </div>
 
         <div class="window-frame">
+            <div class="mixtape-sticker" id="mixtape-label">INSERT TAPE</div>
             <div class="reels-wrapper">
                 <div class="reel-container">
                     <div class="tape-mass" id="tape-l"></div>
@@ -214,7 +210,6 @@
                     <div class="reel-hub" id="hub-r"></div>
                 </div>
             </div>
-            <div class="mixtape-sticker" id="mixtape-label">INSERT TAPE</div>
         </div>
 
         <div class="lcd-screen">
@@ -319,7 +314,7 @@
             const files = Array.from(e.target.files).filter(f => f.type.startsWith('audio/'));
             if(files.length > 0) {
                 tracks = files;
-                const folderName = files[0].webkitRelativePath.split('/')[0] || "MY MIX TAPE";
+                const folderName = files[0].webkitRelativePath.split('/')[0] || "NEW MIX";
                 mixtapeLabel.innerText = folderName.toUpperCase();
                 loadTrack(0);
             }
