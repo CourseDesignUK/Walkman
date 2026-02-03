@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Walkman WM-2 Digital</title>
+    <title>Walkman WM-2 Glass & Dolby</title>
     <style>
         :root {
             --wm-body: #222222;
-            --wm-glass: rgba(0, 0, 0, 0.95);
+            --wm-glass: rgba(5, 5, 5, 0.98);
             --lcd-bg: #7bb552; 
             --lcd-text: #1a2e0e;
             --vdu-on: #1a2e0e;
@@ -55,6 +55,7 @@
 
         .logo-w { color: #888; font-weight: bold; font-size: 2.2vh; letter-spacing: -1px; font-family: sans-serif;}
 
+        /* Window & Glass Reflection */
         .window-frame {
             width: 82%;
             height: 32%;
@@ -67,6 +68,16 @@
             align-items: center;
             box-shadow: inset 0 0 40px #000;
             overflow: hidden;
+            position: relative;
+        }
+
+        .window-frame::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 40%, transparent 41%, transparent 100%);
+            pointer-events: none;
+            z-index: 10;
         }
 
         .reel-container {
@@ -82,7 +93,7 @@
             position: absolute;
             background: var(--tape-color);
             border-radius: 50%;
-            border: 1px solid #333;
+            border: 1px solid #222;
             width: 100%;
             height: 100%;
             transition: width 0.5s linear, height 0.5s linear;
@@ -105,9 +116,10 @@
         .spinning-fast { animation: rotate 0.6s linear infinite; }
         @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
+        /* LCD Panel */
         .lcd-screen {
             width: 82%;
-            height: 16vh;
+            height: 18vh;
             background-color: var(--lcd-bg);
             margin: 10px auto;
             border: 4px solid #000;
@@ -115,21 +127,45 @@
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 6px;
             color: var(--lcd-text);
             font-weight: bold;
         }
 
         .lcd-top { display: flex; justify-content: space-between; font-size: 1.4vh; }
         .lcd-mid { font-size: 1.1vh; overflow: hidden; white-space: nowrap; text-align: center; border-bottom: 1px solid var(--vdu-off); padding-bottom: 4px; }
+        
+        /* Dolby Toggle Style */
+        .dolby-panel {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            gap: 10px;
+            font-size: 1vh;
+            margin-top: 2px;
+        }
+        #dolby-btn {
+            background: var(--vdu-off);
+            border: 1px solid var(--lcd-text);
+            color: var(--lcd-text);
+            font-size: 0.8vh;
+            cursor: pointer;
+            padding: 2px 5px;
+        }
+        #dolby-btn.active {
+            background: var(--lcd-text);
+            color: var(--lcd-bg);
+        }
+
         .vdu-horizontal { display: flex; flex-direction: column; gap: 4px; width: 100%; }
         .vdu-row { display: grid; grid-template-columns: 20px 1fr; align-items: center; gap: 8px; }
         .vdu-label { font-size: 1vh; opacity: 0.8; }
-        .vdu-bars { display: flex; gap: 2px; height: 8px; }
+        .vdu-bars { display: flex; gap: 2px; height: 6px; }
         .vdu-seg { flex: 1; background: var(--vdu-off); }
-        .lcd-progress-bg { width: 100%; height: 6px; background: var(--vdu-off); margin-top: auto; }
+        .lcd-progress-bg { width: 100%; height: 4px; background: var(--vdu-off); margin-top: auto; }
         #lcd-progress-bar { width: 0%; height: 100%; background: var(--lcd-text); }
 
+        /* Buttons */
         .button-cluster {
             position: absolute; bottom: 4%; right: 5%; width: 55%;
             display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
@@ -139,7 +175,7 @@
             background: #2a2a2a; border: 1px solid #000; color: #666;
             padding: 12px 0; font-size: 1vh; font-weight: bold; cursor: pointer;
         }
-        .wm2-btn:active { transform: translateY(2px); background: #1a1a1a; }
+        .wm2-btn:active { transform: translateY(1px); background: #1a1a1a; }
         .play-btn { grid-column: span 2; background: #333; color: #eee; height: 7vh; font-size: 1.6vh;}
 
         .load-btn {
@@ -176,11 +212,17 @@
                 <span id="lcd-time">00:00</span>
             </div>
             <div class="lcd-mid" id="lcd-name">LOAD FOLDER</div>
+            
+            <div class="dolby-panel">
+                <span>DOLBY NR</span>
+                <button id="dolby-btn">OFF</button>
+            </div>
+
             <div class="vdu-horizontal" id="vdu-panel"></div>
             <div class="lcd-progress-bg"><div id="lcd-progress-bar"></div></div>
         </div>
 
-        <button class="load-btn" onclick="triggerLoad()">EJECT / LOAD</button>
+        <button class="load-btn" onclick="document.getElementById('dir-in').click()">EJECT / LOAD</button>
         <div class="button-cluster">
             <button class="wm2-btn play-btn" id="play">PLAY</button>
             <button class="wm2-btn" id="stop">STOP</button>
@@ -202,22 +244,11 @@
         const tapeR = document.getElementById('tape-r');
         const lcdTime = document.getElementById('lcd-time');
         const lcdBar = document.getElementById('lcd-progress-bar');
+        const dolbyBtn = document.getElementById('dolby-btn');
         
-        let audioCtx, analyser, dataArray;
+        let audioCtx, analyser, dataArray, dolbyFilter;
         let tracks = [];
-
-        function playClick() {
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = 'square';
-            osc.frequency.setValueAtTime(120, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.1);
-            gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
-            osc.connect(gain); gain.connect(audioCtx.destination);
-            osc.start(); osc.stop(audioCtx.currentTime + 0.1);
-        }
+        let isDolbyOn = false;
 
         const vduPanel = document.getElementById('vdu-panel');
         ['L','R'].forEach(label => {
@@ -245,15 +276,35 @@
             updateTapeSize(percent * 100);
         };
 
-        function setupVisualizer() {
-            if (analyser) return;
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function setupAudioNodes() {
+            if (audioCtx) return;
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             analyser = audioCtx.createAnalyser();
             const source = audioCtx.createMediaElementSource(player);
-            source.connect(analyser); analyser.connect(audioCtx.destination);
+            
+            // Create Dolby Filter (Low Pass)
+            dolbyFilter = audioCtx.createBiquadFilter();
+            dolbyFilter.type = "lowpass";
+            dolbyFilter.frequency.value = isDolbyOn ? 3000 : 20000; // 20k is effectively bypass
+            
+            source.connect(dolbyFilter);
+            dolbyFilter.connect(analyser);
+            analyser.connect(audioCtx.destination);
+            
             analyser.fftSize = 64;
             dataArray = new Uint8Array(analyser.frequencyBinCount);
             draw();
+        }
+
+        function toggleDolby() {
+            isDolbyOn = !isDolbyOn;
+            dolbyBtn.innerText = isDolbyOn ? "ON" : "OFF";
+            dolbyBtn.classList.toggle('active');
+            if (dolbyFilter) {
+                // Smooth transition like a real component
+                const targetFreq = isDolbyOn ? 3000 : 20000;
+                dolbyFilter.frequency.setTargetAtTime(targetFreq, audioCtx.currentTime, 0.1);
+            }
         }
 
         function draw() {
@@ -267,8 +318,6 @@
             });
         }
 
-        function triggerLoad() { playClick(); dirIn.click(); }
-
         dirIn.onchange = async (e) => {
             tracks = Array.from(e.target.files).filter(f => f.type.startsWith('audio/'));
             if(tracks.length) loadTrack(0);
@@ -281,43 +330,39 @@
             updateTapeSize(0);
         }
 
+        dolbyBtn.onclick = toggleDolby;
+
         document.getElementById('play').onclick = () => {
-            playClick(); 
             if(!player.src) return;
-            setupVisualizer(); 
+            setupAudioNodes(); 
             if (audioCtx.state === 'suspended') audioCtx.resume();
-            
-            // ENSURE 1X SPEED ON PLAY
             player.playbackRate = 1.0; 
-            
             player.play();
             led.classList.add('led-on');
             hubs.forEach(h => h.className = 'reel-hub spinning');
         };
 
         document.getElementById('stop').onclick = () => {
-            playClick(); player.pause();
+            player.pause();
             led.classList.remove('led-on');
             hubs.forEach(h => h.className = 'reel-hub');
         };
 
         document.getElementById('ff').onclick = () => {
-            playClick(); if(player.paused) return;
+            if(player.paused) return;
             player.playbackRate = (player.playbackRate === 1.0) ? 4.0 : 1.0;
             hubs.forEach(h => h.className = player.playbackRate > 1.0 ? 'reel-hub spinning-fast' : 'reel-hub spinning');
         };
 
         document.getElementById('next').onclick = () => { 
-            playClick(); 
-            let nextIdx = (tracks.indexOf(tracks.find(t => t.name === document.getElementById('lcd-name').innerText)) + 1) % tracks.length;
-            loadTrack(nextIdx); 
+            let idx = tracks.findIndex(t => t.name === document.getElementById('lcd-name').innerText);
+            loadTrack((idx + 1) % tracks.length); 
             document.getElementById('play').click(); 
         };
 
         document.getElementById('prev').onclick = () => { 
-            playClick(); 
-            let prevIdx = (tracks.indexOf(tracks.find(t => t.name === document.getElementById('lcd-name').innerText)) - 1 + tracks.length) % tracks.length;
-            loadTrack(prevIdx); 
+            let idx = tracks.findIndex(t => t.name === document.getElementById('lcd-name').innerText);
+            loadTrack((idx - 1 + tracks.length) % tracks.length); 
             document.getElementById('play').click(); 
         };
     </script>
